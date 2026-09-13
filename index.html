@@ -1,0 +1,69 @@
+---
+title: Guilherme Silva
+---
+
+<h1>Guilherme Silva</h1>
+
+<p class="thesis">Trust boundaries of the BEAM runtime, measured: what a default exposes, what a control actually does, and what was not measured. Erlang/OTP and the tools built on it.</p>
+
+<h2 id="security-research">Security research</h2>
+
+<article class="work">
+  <h3><a href="security/elixir-ls-mcp-loopback/">ElixirLS: binding the MCP server to loopback</a></h3>
+  <p>The opt-in MCP server listened on all interfaces with no authentication, exposing its six read-only project-inspection tools to the network.</p>
+  <dl class="work-meta">
+    <div><dt>Status</dt><dd><span class="chip open">open</span> awaiting review</dd></div>
+    <div><dt>Upstream</dt><dd><a href="https://github.com/elixir-lsp/elixir-ls/pull/1275">elixir-lsp/elixir-ls#1275</a></dd></div>
+    <div><dt>Evidence</dt><dd><a href="https://github.com/erts-sched/elixir-ls-mcp-bind-measurements">measurements</a></dd></div>
+  </dl>
+</article>
+
+<article class="work">
+  <h3><a href="security/otp-loopback-node-docs/">Erlang/OTP: documenting how to bind a distributed node to loopback</a></h3>
+  <p>The documentation did not say how to confine a distributed node to the local host, what each setting does and does not do, or that binding is not authentication.</p>
+  <dl class="work-meta">
+    <div><dt>Status</dt><dd><span class="chip open">open</span> awaiting review</dd></div>
+    <div><dt>Upstream</dt><dd><a href="https://github.com/erlang/otp/pull/11617">erlang/otp#11617</a></dd></div>
+    <div><dt>Evidence</dt><dd><a href="https://github.com/erts-sched/otp-loopback-node-measurements">measurements</a></dd></div>
+  </dl>
+</article>
+
+<article class="work">
+  <h3><a href="security/vscode-erlang-loopback-rce/">VS Code Erlang extension: finding and fixing an unauthenticated RCE</a></h3>
+  <p>The LSP, debugger and Erlang distribution sockets listened on all interfaces, so anyone on the network could evaluate arbitrary Erlang as the developer.</p>
+  <dl class="work-meta">
+    <div><dt>Status</dt><dd><span class="chip fixed">fixed</span> released in 1.1.5</dd></div>
+    <div><dt>Upstream</dt><dd><a href="https://github.com/pgourlain/vscode_erlang/security/advisories/GHSA-573p-mcvv-hchg">GHSA-573p-mcvv-hchg</a>, High</dd></div>
+    <div><dt>Evidence</dt><dd><a href="https://github.com/pgourlain/vscode_erlang/issues/328">issue</a>, <a href="https://github.com/pgourlain/vscode_erlang/pull/329">#329</a>, <a href="https://github.com/pgourlain/vscode_erlang/pull/330">#330</a></dd></div>
+  </dl>
+</article>
+
+<h2 id="measurements">Measurements</h2>
+
+<p>Re-runnable, in Docker, on OTP 27, 28 and 29. Each repository states what it
+measured, how, and what it did not.</p>
+
+<div class="table-wrap" tabindex="0">
+<table class="index">
+<thead>
+<tr><th>Repository</th><th>What it measures</th><th>Behind</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td><a href="https://github.com/erts-sched/otp-loopback-node-measurements">otp-loopback-node-measurements</a></td>
+  <td>Where a distributed node listens. The cookie, the bind address and the node name are three different controls. 24 cases, IPv4 and IPv6.</td>
+  <td><a href="security/otp-loopback-node-docs/">the OTP documentation change</a></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/erts-sched/otp-dist-tls-measurements">otp-dist-tls-measurements</a></td>
+  <td>What <code>-proto_dist inet_tls</code> protects. The client certificate authenticates before the cookie; <code>verify_none</code> falls back to cookie-only; TLS does not move the listener off <code>0.0.0.0</code>.</td>
+  <td class="none">no write-up yet</td>
+</tr>
+<tr>
+  <td><a href="https://github.com/erts-sched/elixir-ls-mcp-bind-measurements">elixir-ls-mcp-bind-measurements</a></td>
+  <td>The ElixirLS MCP listener before and after the change, and why the bundled client kept working either way.</td>
+  <td><a href="security/elixir-ls-mcp-loopback/">the ElixirLS change</a></td>
+</tr>
+</tbody>
+</table>
+</div>

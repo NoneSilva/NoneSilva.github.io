@@ -35,7 +35,7 @@ mitigated further by the opt-in default. This is stated in the pull request in
 those words, because inflating it would have been the fastest way to lose the
 maintainer.
 
-## Measured, not asserted
+## How it was measured
 
 Starting the server through the language server's own path on `master`, the
 listening socket reported `{0,0,0,0}` and a client on the host's LAN address was

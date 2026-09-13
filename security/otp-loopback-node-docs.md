@@ -1,8 +1,8 @@
 ---
-title: Documenting how to bind a distributed Erlang node to loopback (OTP)
+title: "Erlang/OTP: documenting how to bind a distributed node to loopback"
 ---
 
-# Documenting how to bind a distributed Erlang node to loopback
+# Erlang/OTP: documenting how to bind a distributed node to loopback
 
 *September 2026 — a documentation change proposed to Erlang/OTP,
 [erlang/otp#11617](https://github.com/erlang/otp/pull/11617) (target `maint`).
@@ -33,7 +33,7 @@ explain the recipe, what each setting does and does not do, the IPv6
 equivalent, and the honest limit: binding to loopback removes the network
 exposure, it does not replace the cookie.
 
-## The trap, measured
+## How it was measured
 
 The obvious recipe (`-kernel inet_dist_use_interface {127,0,0,1}`) has traps
 that only show up when you measure, not when you reason:

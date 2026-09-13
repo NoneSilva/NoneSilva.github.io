@@ -1,12 +1,12 @@
 ---
-title: Finding and fixing an unauthenticated RCE in the VS Code Erlang extension
+title: "VS Code Erlang extension: finding and fixing an unauthenticated RCE"
 ---
 
-# Finding and fixing an unauthenticated RCE in the VS Code Erlang extension
+# VS Code Erlang extension: finding and fixing an unauthenticated RCE
 
 *September 2026 — [pgourlain/vscode_erlang](https://github.com/pgourlain/vscode_erlang), the Erlang extension for VS Code. Reported as [#328](https://github.com/pgourlain/vscode_erlang/issues/328), fixed in [#329](https://github.com/pgourlain/vscode_erlang/pull/329) and [#330](https://github.com/pgourlain/vscode_erlang/pull/330), published as [GHSA-573p-mcvv-hchg](https://github.com/pgourlain/vscode_erlang/security/advisories/GHSA-573p-mcvv-hchg) (severity High), released in 1.1.5.*
 
-## Summary
+## What it is
 
 The extension's local servers listened on every network interface instead of loopback. Its debugger command channel evaluates whatever it receives with `erl_eval`, with no authentication, so anyone able to reach the developer's machine on those ports could run arbitrary Erlang — and therefore arbitrary OS commands — as the developer. A second, opt-in path (Erlang distribution with a predictable cookie) gave the same result through the classic BEAM route. Both are fixed in 1.1.5 by binding everything to `127.0.0.1`. The extension has ~213,000 installs on the VS Code Marketplace (September 2026).
 
@@ -30,7 +30,7 @@ Without `{ip, _}`, OTP binds `0.0.0.0`. Reaching the debugger port is code execu
 
 While preparing the fix, two more all-interfaces listeners turned up on the Node side (`lib/ErlangAdapterDescriptorFactory.ts` and the free-port probe in `lib/lsp/lspclientextension.ts`), and the LSP client resolved `localhost` rather than pinning `127.0.0.1`.
 
-## Measuring it
+## How it was measured
 
 Claims about bind addresses are cheap; measurements are not. I started the Erlang side exactly as the extension does, inside a Linux container with a LAN address of `172.17.0.2`, and probed each listener from that address and from loopback with `nc -zv`.
 
