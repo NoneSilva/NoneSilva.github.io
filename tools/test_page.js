@@ -61,6 +61,10 @@ function check(cond, msg){ console.log((cond ? "ok   " : "FAIL ") + msg); if (!c
 
 const all = run("");
 const rows = all.find(n => n.tag === "li" && /\bentry\b/.test(n.className));
+// Newest first, by the instant: the times of the rows in All never increase.
+const times = all.find(n => n.tag === "time").map(n => n.attrs.datetime);
+check(times.every((t, i) => !i || times[i - 1] >= t),
+      `All: ${times.length} rows in descending time (${times[0]} … ${times[times.length - 1]})`);
 const commitRows = rows.filter(n => /\bcommit\b/.test(n.className) && !/\bcommits\b/.test(n.className));
 const monthlyRows = rows.filter(n => /\bcommits\b/.test(n.className));
 check(commitRows.length > 0, `All: ${commitRows.length} latest-commit rows rendered`);

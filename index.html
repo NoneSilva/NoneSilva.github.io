@@ -54,7 +54,13 @@
   function localDay(iso){ var d = new Date(iso); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
   var RANK = {advisory:5, pr:4, issue:3, review:2, commit:1, commits:0};
   entries.forEach(function(e){ e.day = e.at ? localDay(e.at) : e.date; });
-  entries.sort(function(a, b){ return a.day < b.day ? 1 : a.day > b.day ? -1 : (RANK[b.type] - RANK[a.type]) || (a.id < b.id ? 1 : -1); });
+  // Newest first: by the viewer's day, then by the instant within it. A
+  // monthly commit total has no instant and closes its day; type, then id,
+  // only break exact ties.
+  function later(a, b){ return a < b ? 1 : a > b ? -1 : 0; }
+  entries.sort(function(a, b){
+    return later(a.day, b.day) || later(a.at || "", b.at || "") || (RANK[b.type] - RANK[a.type]) || later(a.id, b.id);
+  });
   var params = new URLSearchParams(location.search);
   var state = {q: params.get("q") || "", type: params.get("type") || "all", from: params.get("from") || "", to: params.get("to") || ""};
 
