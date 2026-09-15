@@ -84,5 +84,15 @@ check(tabRows.every(n => /^\d+ commits?$/.test(n.find(x => x.className === "item
 const profile = byId.links.find(n => n.tag === "a");
 check(profile.length >= 1 && profile.every(a => a.attrs.target === "_blank"), `profile links open in a new tab (${profile.length})`);
 
+// Dates render in the viewer's time zone: a pull request opened at
+// 2026-09-10T01:21:08Z is Sep 9 in America/Sao_Paulo and Sep 10 in UTC.
+function dateOf(number, tz){
+  process.env.TZ = tz;
+  const tl = run("?type=pr");
+  const row = tl.find(n => n.tag === "li" && /\bentry pr\b/.test(n.className) && n.attrs.id === "pr-elixir-lsp-elixir-ls-1275")[0];
+  return row ? row.find(n => n.tag === "time")[0].textContent : null;
+}
+const inBrazil = dateOf(1275, "America/Sao_Paulo"), inUtc = dateOf(1275, "UTC");
+check(inBrazil === "Sep 9, 2026" && inUtc === "Sep 10, 2026", `PR #1275 shows ${inBrazil} in America/Sao_Paulo and ${inUtc} in UTC`);
 console.log(failures ? `\n${failures} check(s) failed` : "\nall checks passed");
 process.exit(failures ? 1 : 0);

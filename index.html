@@ -20,7 +20,7 @@
       </nav>
       <div class="toolbar" role="search">
         <h1 class="title">Contributions of <span class="login" id="login">…</span></h1>
-        <input class="input search" type="search" id="q" placeholder="Search repository, title or number" aria-label="Search contributions" autocomplete="off">
+        <input class="input search" type="search" id="q" placeholder="Search repository, title or number" aria-label="Search contributions" autocomplete="off" autofocus>
         <div class="date-range">
           <label for="from">from</label><input class="input" type="date" id="from" aria-label="From date">
           <label for="to">to</label><input class="input" type="date" id="to" aria-label="To date">
@@ -43,6 +43,13 @@
   var TYPES = [["all","All"],["issue","Issues"],["pr","Pull requests"],["review","Reviews"],["commits","Commits"],["advisory","Security advisories"]];
   var LABEL = {pr:"Pull request", issue:"Issue", review:"Review", commits:"Commits", commit:"Commit", advisory:"Advisory"};
   var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  // Dates are shown in the viewer's time zone, as GitHub does: entries that
+  // happen at an instant carry it (`at`); commit days are calendar days.
+  function pad(n){ return (n < 10 ? "0" : "") + n; }
+  function localDay(iso){ var d = new Date(iso); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  var RANK = {advisory:5, pr:4, issue:3, review:2, commit:1, commits:0};
+  entries.forEach(function(e){ e.day = e.at ? localDay(e.at) : e.date; });
+  entries.sort(function(a, b){ return a.day < b.day ? 1 : a.day > b.day ? -1 : (RANK[b.type] - RANK[a.type]) || (a.id < b.id ? 1 : -1); });
   var params = new URLSearchParams(location.search);
   var state = {q: params.get("q") || "", type: params.get("type") || "all", from: params.get("from") || "", to: params.get("to") || ""};
 
@@ -96,7 +103,7 @@
   function dayName(d){ var p = d.split("-"); return MONTHS[+p[1]-1].slice(0,3) + " " + (+p[2]) + ", " + p[0]; }
 
   document.getElementById("login").textContent = meta.login || "";
-  document.getElementById("updated").textContent = "Updated to " + (meta.generated || "").slice(0,10);
+  document.getElementById("updated").textContent = "Updated to " + (meta.generated ? dayName(localDay(meta.generated)) : "");
   document.getElementById("name").textContent = meta.name || meta.login || "";
   var root = document.documentElement;
   var themeBtn = el("button", {type:"button", class:"theme", id:"theme", "aria-label":"Switch theme", title:"Switch theme"});
@@ -160,8 +167,8 @@
     if (state.type === "commits" && e.type === "commit") return false;
     if (state.type !== "all" && e.type !== state.type && e.type !== "commit") return false;
     if (state.type !== "all" && state.type !== "commits" && e.type === "commit") return false;
-    if (state.from && e.date < state.from) return false;
-    if (state.to && e.date > state.to) return false;
+    if (state.from && e.day < state.from) return false;
+    if (state.to && e.day > state.to) return false;
     if (!state.q) return true;
     var hay = (e.repo + " " + e.title + " " + (e.number || "") + " " + LABEL[e.type] + " " + e.state).toLowerCase();
     return state.q.toLowerCase().split(/\s+/).every(function(w){ return !w || hay.indexOf(w) >= 0; });
@@ -191,7 +198,7 @@
     var parts = [];
     if (e.type !== "commits") parts.push(el("span", {class:"num", text: (e.type === "advisory" || e.type === "commit") ? e.number : "#" + e.number}));
     parts.push(el("a", ext({class:"repo", href: e.type === "commits" ? e.url : e.repo_url, text: e.repo})));
-    parts.push(el("span", {class:"when"}, [document.createTextNode(verb(e) + " "), el("time", {class:"date", datetime: e.date, text: dayName(e.date)})]));
+    parts.push(el("span", {class:"when"}, [document.createTextNode(verb(e) + " "), el("time", {class:"date", datetime: e.at || e.day, text: dayName(e.day)})]));
     if (e.state === "draft") parts.push(el("span", {text: "Draft"}));
     var meta = el("div", {class:"meta"});
     parts.forEach(function(x, k){ if (k) meta.appendChild(el("span", {class:"sep", "aria-hidden":"true", text: "·"})); meta.appendChild(x); });
@@ -209,7 +216,7 @@
     var shown = entries.filter(matches);
     if (!shown.length) { tl.appendChild(el("li", {class:"empty", text:"Nothing matches. Clear the search or pick another type."})); return; }
     var byMonth = {}, order = [];
-    shown.forEach(function(e){ var m = e.date.slice(0,7); if (!byMonth[m]) { byMonth[m] = []; order.push(m); } byMonth[m].push(e); });
+    shown.forEach(function(e){ var m = e.day.slice(0,7); if (!byMonth[m]) { byMonth[m] = []; order.push(m); } byMonth[m].push(e); });
     order.forEach(function(m){
       tl.appendChild(el("li", {class:"month"}, [
         el("h2", {class:"month-title", text: monthName(m)}),

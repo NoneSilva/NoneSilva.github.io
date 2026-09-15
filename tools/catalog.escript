@@ -173,6 +173,7 @@ entry(pr, N) ->
             RepoName = get([<<"nameWithOwner">>], Repo),
             #{id => id([<<"pr">>, RepoName, integer_to_binary(Number)]),
               type => <<"pr">>,
+              at => get([<<"occurredAt">>], N),
               date => day(get([<<"occurredAt">>], N)),
               repo => RepoName,
               repo_url => get([<<"url">>], Repo),
@@ -191,6 +192,7 @@ entry(issue, N) ->
             RepoName = get([<<"nameWithOwner">>], Repo),
             #{id => id([<<"issue">>, RepoName, integer_to_binary(Number)]),
               type => <<"issue">>,
+              at => get([<<"occurredAt">>], N),
               date => day(get([<<"occurredAt">>], N)),
               repo => RepoName,
               repo_url => get([<<"url">>], Repo),
@@ -212,6 +214,7 @@ entry(review, N) ->
             Date = day(get([<<"occurredAt">>], N)),
             #{id => id([<<"review">>, RepoName, integer_to_binary(Number), Date]),
               type => <<"review">>,
+              at => get([<<"occurredAt">>], N),
               date => Date,
               repo => RepoName,
               repo_url => get([<<"url">>], Repo),
@@ -258,6 +261,7 @@ advisories(Login, Repo) ->
                               Ghsa = get([<<"ghsa_id">>], A),
                               {true, #{id => id([<<"advisory">>, Repo, Ghsa]),
                                        type => <<"advisory">>,
+                                       at => get([<<"published_at">>], A),
                                        date => day(get([<<"published_at">>], A)),
                                        repo => Repo,
                                        repo_url => <<"https://github.com/", Repo/binary>>,
@@ -279,10 +283,11 @@ latest_commit(Login, Repo) ->
                 [C | _] ->
                     Sha = get([<<"sha">>], C),
                     Short = binary:part(Sha, 0, 7),
-                    Date = day(get([<<"commit">>, <<"committer">>, <<"date">>], C)),
+                    At = get([<<"commit">>, <<"committer">>, <<"date">>], C),
                     {true, #{id => id([<<"commit">>, Repo, Short]),
                              type => <<"commit">>,
-                             date => Date,
+                             at => At,
+                             date => day(At),
                              repo => Repo,
                              repo_url => <<"https://github.com/", Repo/binary>>,
                              number => Short,
@@ -336,7 +341,10 @@ get(Ks, V) -> error({path, Ks, V}).
 
 lower(B) -> string:lowercase(B).
 
-day(Iso) -> binary:part(Iso, 0, 10).
+%% UTC calendar day of an ISO instant. Entries that happen at an instant
+%% also carry the instant itself (`at`); the page shows it in the viewer's
+%% time zone, as GitHub does. Commit days are GitHub's calendar days.
+day(<<Ymd:10/binary, _/binary>>) -> Ymd.
 
 id(Parts) ->
     Joined = lists:join(<<"-">>, Parts),
