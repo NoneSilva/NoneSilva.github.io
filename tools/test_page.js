@@ -94,5 +94,9 @@ function dateOf(number, tz){
 }
 const inBrazil = dateOf(1275, "America/Sao_Paulo"), inUtc = dateOf(1275, "UTC");
 check(inBrazil === "Sep 9, 2026" && inUtc === "Sep 10, 2026", `PR #1275 shows ${inBrazil} in America/Sao_Paulo and ${inUtc} in UTC`);
+// Cache busting: the page loads the data file with exactly one version stamp.
+const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+const stamps = html.match(/contributions\/contributions\.js\?v=\d+/g) || [];
+check(stamps.length === 1 && !/contributions\.js\?v=\d+\?v=/.test(html), `data file linked with one version stamp: ${stamps[0]}`);
 console.log(failures ? `\n${failures} check(s) failed` : "\nall checks passed");
 process.exit(failures ? 1 : 0);

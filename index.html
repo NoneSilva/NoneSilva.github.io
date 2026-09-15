@@ -40,7 +40,7 @@
     </div>
   </div>
 </main>
-<script src="contributions/contributions.js"></script>
+<script src="contributions/contributions.js?v=1789480473"></script>
 <script>
 (function(){
   var data = window.CONTRIBUTIONS || {meta:{}, entries:[]};
@@ -108,7 +108,12 @@
   function dayName(d){ var p = d.split("-"); return MONTHS[+p[1]-1].slice(0,3) + " " + (+p[2]) + ", " + p[0]; }
 
   document.getElementById("login").textContent = meta.login || "";
-  document.getElementById("updated").textContent = "Updated to " + (meta.generated ? dayName(localDay(meta.generated)) : "");
+  // The update stamp is one clock for everyone: "Updated to Sep 15, 2026 at 13:49 UTC".
+  function utcStamp(iso){
+    var d = new Date(iso);
+    return MONTHS[d.getUTCMonth()].slice(0,3) + " " + d.getUTCDate() + ", " + d.getUTCFullYear() + " at " + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + " UTC";
+  }
+  document.getElementById("updated").textContent = "Updated to " + (meta.generated ? utcStamp(meta.generated) : "");
   document.getElementById("name").textContent = meta.name || meta.login || "";
   var root = document.documentElement;
   var themeBtn = el("button", {type:"button", class:"theme", id:"theme", "aria-label":"Switch theme", title:"Switch theme"});

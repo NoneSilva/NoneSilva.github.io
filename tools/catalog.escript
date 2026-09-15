@@ -73,8 +73,23 @@ main(Args) ->
     ok = filelib:ensure_dir(filename:join(Out, "x")),
     ok = file:write_file(filename:join(Out, "contributions.json"), Json),
     ok = file:write_file(filename:join(Out, "contributions.js"), [<<"window.CONTRIBUTIONS = ">>, Json, <<";\n">>]),
+    stamp_page(Out),
     io:format("wrote ~s/contributions.json: ~B public entries in ~B repositories, ~B restricted~n",
               [Out, length(Sorted), length(Repos), Restricted]).
+
+%% Cache busting: the page loads the data file with a version query string
+%% carrying the generation time, so a fresh page never pairs with a data
+%% file still held in a visitor's cache. GitHub Pages caches for 10 minutes.
+stamp_page(Out) ->
+    Page = filename:join(filename:dirname(Out), "index.html"),
+    case file:read_file(Page) of
+        {ok, Html} ->
+            Stamp = integer_to_binary(erlang:system_time(second)),
+            New = re:replace(Html, <<"contributions/contributions\\.js(\\?v=[0-9]+)?">>,
+                             <<"contributions/contributions.js?v=", Stamp/binary>>, [{return, binary}]),
+            ok = file:write_file(Page, New);
+        _ -> ok
+    end.
 
 %% ---- options -------------------------------------------------------------
 
