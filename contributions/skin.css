@@ -6,8 +6,11 @@
    outlines; `emphasis` for filled backgrounds with white text.
    ========================================================================= */
 
-/* 1. Palette (Primer roles) */
+/* 1. Palette (Primer roles). `color-scheme` tells the browser which theme
+   its own controls (date picker icon, search clear button, scrollbar)
+   should be drawn in; without it they come out dark on dark. */
 :root{
+  color-scheme:light;
   --canvas:#ffffff;              /* bgColor-default          */
   --canvas-muted:#f6f8fa;        /* bgColor-muted            */
   --fg:#1f2328;                  /* fgColor-default          */
@@ -26,6 +29,7 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
+    color-scheme:dark;
     --canvas:#0d1117; --canvas-muted:#151b23;
     --fg:#f0f6fc; --fg-muted:#9198a1; --fg-on-emphasis:#ffffff;
     --border:#3d444d; --border-muted:#3d444db3;
@@ -40,6 +44,7 @@
   }
 }
 :root[data-theme="dark"]{
+  color-scheme:dark;
   --canvas:#0d1117; --canvas-muted:#151b23;
   --fg:#f0f6fc; --fg-muted:#9198a1; --fg-on-emphasis:#ffffff;
   --border:#3d444d; --border-muted:#3d444db3;
