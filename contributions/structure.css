@@ -5,9 +5,19 @@
    20px labels, 16px icons, 6px radius.
    ========================================================================= */
 
+/* 0. Web font: Mona Sans, GitHub's typeface (SIL Open Font License, see
+   fonts/OFL.txt), variable in weight and optical size, upright only. */
+@font-face{
+  font-family:"Mona Sans";
+  src:url("fonts/MonaSansVF.woff2") format("woff2");
+  font-weight:200 900;
+  font-style:normal;
+  font-display:swap;
+}
+
 /* 1. Tokens */
 :root{
-  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+  --font-sans:"Mona Sans",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
   --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
   --text-body:14px; --text-small:12px; --text-title:20px; --line-body:1.5;
   --control-h:32px; --tab-h:48px; --label-h:20px; --icon:16px; --radius:6px;

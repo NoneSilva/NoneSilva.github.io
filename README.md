@@ -46,4 +46,5 @@ What is claimed is the implementation: the generator, the page, the CSS
 architecture and its structure. The visual conventions the page follows
 (GitHub's tab bar, list rows, state icons and colours) are GitHub's design,
 not claimed here; the icon paths are Octicons, copyright GitHub Inc., under
-their own MIT license.
+their own MIT license; the typeface is Mona Sans, copyright GitHub Inc.,
+under the SIL Open Font License (`contributions/fonts/OFL.txt`).
