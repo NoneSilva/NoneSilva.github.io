@@ -1,11 +1,5 @@
 title: Guilherme Silva
-description: Trust boundaries of the BEAM runtime, measured
-permalink: pretty
-markdown: kramdown
-defaults:
-  - scope:
-      path: ""
-    values:
-      layout: default
+description: Contributing to safer software
 exclude:
   - README.md
+  - tools
