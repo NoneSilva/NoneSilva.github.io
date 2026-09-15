@@ -23,6 +23,10 @@ page or the generator.
 
 `404.html` sends any unknown URL to the home page.
 
+The favicon is the flag of Brazil as flat geometry (`contributions/favicon.svg`),
+with PNG renders at 16, 32, 64 and 180 px for browsers that do not take SVG
+(`contributions/favicon-*.png`, `contributions/apple-touch-icon.png`).
+
 - Source: the account's `contributionsCollection`, one GraphQL query per
   month since the account was created, paginated. Only the account's own
   data, read through its own API.
