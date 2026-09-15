@@ -201,7 +201,7 @@
     var m = marker(e);
     var mark = el("span", {class:"marker marker--" + m[1], title: LABEL[e.type] + " " + e.state.replace("_"," ")}, [icon(m[0])]);
     var parts = [];
-    if (e.type !== "commits") parts.push(el("span", {class:"num", text: (e.type === "advisory" || e.type === "commit") ? e.number : "#" + e.number}));
+    if (e.type !== "commits") parts.push(el("span", {class: e.type === "commit" ? "num sha" : "num", text: (e.type === "advisory" || e.type === "commit") ? e.number : "#" + e.number}));
     parts.push(el("a", ext({class:"repo", href: e.type === "commits" ? e.url : e.repo_url, text: e.repo})));
     parts.push(el("span", {class:"when"}, [document.createTextNode(verb(e) + " "), el("time", {class:"date", datetime: e.at || e.day, text: dayName(e.day)})]));
     if (e.state === "draft") parts.push(el("span", {text: "Draft"}));

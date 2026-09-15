@@ -64,16 +64,16 @@ ol{padding:0;list-style:none}
 /* 4.3 Toolbar: title, search, date range. */
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2)}
 .title{font-size:var(--text-title);line-height:1.25;font-weight:600;margin-right:var(--space-2);white-space:nowrap}
-.title .login{font-family:var(--font-mono);font-weight:500}
+.title .login{font-weight:600}
 .input{height:var(--control-h);padding:5px var(--space-3);border-width:1px;border-style:solid;border-radius:var(--radius);line-height:20px}
 .search{flex:1 1 220px;min-width:0}
 .date-range{display:flex;align-items:center;gap:var(--space-2)}
-.date-range .input{font-family:var(--font-mono);font-size:var(--text-small);width:10.5em;padding-inline:var(--space-2)}
+.date-range .input{width:10.5em;padding-inline:var(--space-2)}
 
 /* 4.4 Timeline. */
 .timeline{display:grid;gap:var(--space-5)}
 .month{display:grid;gap:var(--space-2)}
-.month-title{font-size:var(--text-body);line-height:20px;font-weight:600}
+.month-title{font-size:var(--text-body);line-height:20px;font-weight:400}
 .entries{border-left-width:2px;border-left-style:solid;margin-left:9px}
 .entry{position:relative;display:grid;grid-template-columns:1fr auto auto;gap:var(--space-3);align-items:center;padding:var(--space-2) var(--space-3) var(--space-2) 24px;border-bottom-width:1px;border-bottom-style:solid}
 .entry:last-child{border-bottom:0}
@@ -84,6 +84,7 @@ ol{padding:0;list-style:none}
 .item{text-decoration:none;font-size:16px;line-height:24px;font-weight:400}
 .meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 var(--space-1);font-size:var(--text-small);line-height:18px}
 .repo{text-decoration:none}
+.sha{font-family:var(--font-mono)}
 .date{font-variant-numeric:tabular-nums}
 .anchor{display:inline-flex;opacity:0}
 .empty{padding:var(--space-5) 0}
