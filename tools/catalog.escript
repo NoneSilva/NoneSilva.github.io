@@ -286,8 +286,10 @@ latest_commit(Login, Repo) ->
                              repo => Repo,
                              repo_url => <<"https://github.com/", Repo/binary>>,
                              number => Short,
-                             title => <<"Last commit">>,
-                             url => get([<<"html_url">>], C),
+                             title => <<"Show commits">>,
+                             %% The link opens all of the account's commits in the
+                             %% repository, not this one commit.
+                             url => <<"https://github.com/", Repo/binary, "/commits?author=", Login/binary>>,
                              state => <<"latest">>}};
                 _ -> false
             end;

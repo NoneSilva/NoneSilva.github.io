@@ -17,6 +17,12 @@ git push
 Requirements: OTP 27 or later (`json` module) and `gh` logged in as the
 account.
 
+`node tools/test_page.js` renders the page's script against the generated data
+in a minimal DOM and checks what the rows link to. Run it after changing the
+page or the generator.
+
+`404.html` sends any unknown URL to the home page.
+
 - Source: the account's `contributionsCollection`, one GraphQL query per
   month since the account was created, paginated. Only the account's own
   data, read through its own API.
