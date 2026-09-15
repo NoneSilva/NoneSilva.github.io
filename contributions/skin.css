@@ -1,0 +1,110 @@
+/* Copyright (c) 2026 Guilherme Silva. All rights reserved. */
+/* =========================================================================
+   Skin: colours only, read from the stylesheets GitHub serves (light and
+   dark default themes, 2026-09-14). Structure lives in structure.css.
+   Each state has two colours, as in Primer: `fg` for text, dots and
+   outlines; `emphasis` for filled backgrounds with white text.
+   ========================================================================= */
+
+/* 1. Palette (Primer roles) */
+:root{
+  --canvas:#ffffff;              /* bgColor-default          */
+  --canvas-muted:#f6f8fa;        /* bgColor-muted            */
+  --fg:#1f2328;                  /* fgColor-default          */
+  --fg-muted:#59636e;            /* fgColor-muted            */
+  --fg-on-emphasis:#ffffff;      /* fgColor-onEmphasis       */
+  --border:#d1d9e0;              /* borderColor-default      */
+  --border-muted:#d1d9e0b3;      /* borderColor-muted        */
+  --accent:#0969da;              /* fgColor-accent           */
+  --success-fg:#1a7f37;          --success-emphasis:#1f883d;
+  --done-fg:#8250df;             --done-emphasis:#8250df;
+  --danger-fg:#d1242f;           --danger-emphasis:#cf222e;
+  --severe-fg:#bc4c00;           --severe-emphasis:#bc4c00;
+  --attention-fg:#9a6700;        --attention-emphasis:#9a6700;
+  --neutral-fg:#59636e;          --neutral-emphasis:#59636e;
+  --tab-active:#fd8c73;          /* underlineNav borderColor-active */
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --canvas:#0d1117; --canvas-muted:#151b23;
+    --fg:#f0f6fc; --fg-muted:#9198a1; --fg-on-emphasis:#ffffff;
+    --border:#3d444d; --border-muted:#3d444db3;
+    --accent:#4493f8;
+    --success-fg:#3fb950;   --success-emphasis:#238636;
+    --done-fg:#ab7df8;      --done-emphasis:#8957e5;
+    --danger-fg:#f85149;    --danger-emphasis:#da3633;
+    --severe-fg:#db6d28;    --severe-emphasis:#bd561d;
+    --attention-fg:#d29922; --attention-emphasis:#9e6a03;
+    --neutral-fg:#9198a1;   --neutral-emphasis:#656c76;
+    --tab-active:#f78166;
+  }
+}
+:root[data-theme="dark"]{
+  --canvas:#0d1117; --canvas-muted:#151b23;
+  --fg:#f0f6fc; --fg-muted:#9198a1; --fg-on-emphasis:#ffffff;
+  --border:#3d444d; --border-muted:#3d444db3;
+  --accent:#4493f8;
+  --success-fg:#3fb950;   --success-emphasis:#238636;
+  --done-fg:#ab7df8;      --done-emphasis:#8957e5;
+  --danger-fg:#f85149;    --danger-emphasis:#da3633;
+  --severe-fg:#db6d28;    --severe-emphasis:#bd561d;
+  --attention-fg:#d29922; --attention-emphasis:#9e6a03;
+  --neutral-fg:#9198a1;   --neutral-emphasis:#656c76;
+  --tab-active:#f78166;
+}
+
+/* 2. Base */
+body{background:var(--canvas);color:var(--fg)}
+a,button,input{color:inherit}
+svg{fill:currentColor}
+:focus-visible{outline-color:var(--accent)}
+
+/* 3. Layout */
+.app-header{background:var(--canvas)}
+.app-content{scrollbar-color:var(--border) transparent}
+
+/* 4. Components */
+.tabs{border-bottom-color:var(--border-muted)}
+.tab{color:var(--fg);border-bottom-color:transparent}
+.tab svg{color:var(--fg-muted)}
+.profile-links a,.theme{color:var(--fg-muted)}
+.input{background:var(--canvas);border-color:var(--border);color:var(--fg)}
+.input::placeholder{color:var(--fg-muted)}
+.date-range{color:var(--fg-muted)}
+.month-title{color:var(--fg-muted)}
+.entries{border-left-color:var(--border)}
+.entry{border-bottom-color:var(--border-muted)}
+.marker{background:var(--canvas);color:var(--fg-muted)}
+.meta,.anchor,.empty{color:var(--fg-muted)}
+.status{background:var(--neutral-emphasis);color:var(--fg-on-emphasis)}
+.signoff{color:var(--fg-muted)}
+.signoff::before,.signoff::after{border-top-color:var(--border-muted)}
+
+/* 5. States */
+.tab:hover{border-bottom-color:var(--border)}
+.tab[aria-pressed="true"]{border-bottom-color:var(--tab-active)}
+.tab[aria-pressed="true"] svg{color:var(--fg)}
+.profile-links a:hover,.theme:hover,.repo:hover{color:var(--fg)}
+.item:hover{color:var(--accent)}
+.entry:hover,.entry:target{background:var(--canvas-muted)}
+.item:hover{color:var(--accent);text-decoration:underline}
+.entry:target{outline-color:var(--accent)}
+/* Marker icons take GitHub's state colours: open = success, done = merged,
+   completed issue and advisories, closed = danger, muted = draft, not
+   planned, comment, commits. State labels use the emphasis backgrounds. */
+.marker--open{color:var(--success-fg)}
+.marker--done{color:var(--done-fg)}
+.marker--closed{color:var(--danger-fg)}
+.marker--muted{color:var(--fg-muted)}
+.status.open{background:var(--success-emphasis)}
+.status.draft{background:var(--neutral-emphasis)}
+.status.merged,.entry.issue .status.closed{background:var(--done-emphasis)}
+.entry.pr .status.closed{background:var(--danger-emphasis)}
+.status.pushed{background:var(--neutral-emphasis)}
+/* Severity, outlined as on GitHub's Security tab: critical red, high orange,
+   moderate yellow, low grey. */
+.status--outline{background:transparent;border-color:currentColor}
+.status--outline.critical{color:var(--danger-fg)}
+.status--outline.high{color:var(--severe-fg)}
+.status--outline.moderate{color:var(--attention-fg)}
+.status--outline.low{color:var(--neutral-fg)}
