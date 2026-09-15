@@ -69,7 +69,7 @@ for (const r of commitRows) {
   const item = r.find(n => n.tag === "a" && n.className === "item")[0];
   const repo = r.find(n => n.tag === "a" && n.className === "repo")[0];
   const login = "erts-sched";
-  check(item.textContent === "Show commits", `title is "Show commits" (${repo.textContent})`);
+  check(item.textContent === "Latest commit", `title is "Latest commit" (${repo.textContent})`);
   check(/^https:\/\/github\.com\/[^/]+\/[^/]+\/commits\?author=erts-sched$/.test(item.attrs.href),
         `link is the repository's commit list filtered by author: ${item.attrs.href}`);
   check(item.attrs.target === "_blank" && item.attrs.rel === "noopener", "opens in a new tab");
