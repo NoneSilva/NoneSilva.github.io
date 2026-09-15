@@ -18,9 +18,7 @@
     <div class="container">
       <a class="brand" href="{{ '/' | relative_url }}">{{ site.title }}</a>
       <nav aria-label="site">
-        <a href="{{ '/#security-research' | relative_url }}">Security research</a>
-        <a href="{{ '/#measurements' | relative_url }}">Measurements</a>
-        <a href="{{ '/contributions/' | relative_url }}">Contributions</a>
+        <a href="{{ '/' | relative_url }}">Contributions</a>
         <a href="https://github.com/erts-sched" target="_blank" rel="noopener">GitHub</a>
       </nav>
     </div>
@@ -29,7 +27,7 @@
   <main id="main">
     <div class="container">
       {% if page.url != "/" %}
-      <nav class="crumb" aria-label="breadcrumb"><a href="{{ '/#security-research' | relative_url }}">Security research</a></nav>
+      <nav class="crumb" aria-label="breadcrumb"><a href="{{ '/' | relative_url }}">Contributions</a></nav>
       {% endif %}
       {{ content }}
     </div>
