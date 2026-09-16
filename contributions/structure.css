@@ -105,10 +105,27 @@ ol{padding:0;list-style:none}
 .entry:target{outline-width:1px;outline-style:solid}
 .entry:hover .anchor,.entry:target .anchor,.anchor:focus-visible{opacity:1}
 
-/* 6. Responsive */
+/* 6. Responsive. On a narrow screen the header is one system: rows one
+   control tall (32px) in two aligned columns, from the nav to the dates. */
 @media (max-width:640px){
+  /* 6.1 Nav: two columns of 32px rows, the second sized by its longest
+     label ("Security advisories" with its icon) and the first taking the
+     rest, so no label wraps; tabs lose their side padding and keep icon
+     tight to label. The profile links weigh less: one row of their icons
+     alone, together at the right, each a 32px square as Primer's
+     IconButton. */
+  .tabs{display:grid;grid-template-columns:minmax(0,1fr) max-content;grid-auto-rows:var(--control-h);align-items:center;gap:0}
+  .tabs-list{display:contents}
+  .tab{height:var(--control-h);padding-inline:0;gap:var(--space-1)}
+  .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:0}
+  .profile-links a,.theme{width:var(--control-h);height:var(--control-h);justify-content:center;font-size:0}
+  /* 6.2 Toolbar: title, then search, then each date on its own 32px row,
+     label beside a field that takes the rest. */
   .title{flex-basis:100%;white-space:normal}
-  .date-range{flex-basis:100%;flex-wrap:wrap}
+  .search{flex-basis:100%}
+  .date-range{flex-basis:100%;display:grid;grid-template-columns:auto 1fr;gap:var(--space-2)}
+  .date-range .input{width:auto;min-width:0}
+  /* 6.3 Rows without the anchor column; the spine sits closer to the edge. */
   .entry{grid-template-columns:1fr auto;padding-left:20px}
   .entry .anchor{display:none}
 }
