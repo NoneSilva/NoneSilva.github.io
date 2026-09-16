@@ -64,7 +64,7 @@ ol{padding:0;list-style:none}
 /* 4.3 Toolbar: title, search, date range. */
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2)}
 .title{font-size:var(--text-title);line-height:1.25;font-weight:600;margin-right:var(--space-2);white-space:nowrap}
-.title .login{font-weight:600}
+.title .login{font-weight:600;white-space:nowrap}   /* the name never breaks, whatever the width */
 .input{height:var(--control-h);padding:5px var(--space-3);border-width:1px;border-style:solid;border-radius:var(--radius);line-height:20px}
 .search{flex:1 1 220px;min-width:0}
 .date-range{display:flex;align-items:center;gap:var(--space-2)}
@@ -112,13 +112,13 @@ ol{padding:0;list-style:none}
      label ("Security advisories" with its icon) and the first taking the
      rest, so no label wraps; tabs lose their side padding and keep icon
      tight to label. The profile links weigh less: one row of their icons
-     alone, together at the right, each a 32px square as Primer's
-     IconButton. */
+     alone at the right, 8px apart as items of one group in Primer, each
+     the row's 32px tall. */
   .tabs{display:grid;grid-template-columns:minmax(0,1fr) max-content;grid-auto-rows:var(--control-h);align-items:center;gap:0}
   .tabs-list{display:contents}
   .tab{height:var(--control-h);padding-inline:0;gap:var(--space-1)}
-  .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:0}
-  .profile-links a,.theme{width:var(--control-h);height:var(--control-h);justify-content:center;font-size:0}
+  .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:var(--space-2)}
+  .profile-links a,.theme{width:var(--icon);height:var(--control-h);justify-content:center;gap:0;font-size:0}
   /* 6.2 Toolbar: title, then search, then each date on its own 32px row,
      label beside a field that takes the rest. */
   .title{flex-basis:100%;white-space:normal}
