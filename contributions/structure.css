@@ -148,6 +148,10 @@ ol{padding:0;list-style:none}
 }
 @media (min-width:700px) and (max-width:1011px){
   .tabs{grid-template-columns:repeat(6,max-content)}
+  /* The search joins the dates on one row, taking what they leave; the
+     title keeps its own row until the desktop puts all three together. */
+  .search{flex-basis:220px}
+  .date-range{flex:0 0 auto}
 }
 @media (min-width:800px) and (max-width:1011px){
   .tabs{grid-template-columns:repeat(6,max-content) max-content}
