@@ -28,7 +28,9 @@
 /* 2. Base */
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;overflow:hidden;font-family:var(--font-sans);font-size:var(--text-body);line-height:var(--line-body)}
+/* 320px is the page's floor, Primer's smallest breakpoint: narrower than
+   that it keeps 320 and scrolls sideways rather than breaking its rows. */
+body{margin:0;min-width:320px;overflow:hidden;font-family:var(--font-sans);font-size:var(--text-body);line-height:var(--line-body)}
 button,input{font:inherit}
 svg{width:var(--icon);height:var(--icon);flex:none}
 :focus-visible{outline-width:2px;outline-style:solid;outline-offset:2px}
@@ -105,9 +107,10 @@ ol{padding:0;list-style:none}
 .entry:target{outline-width:1px;outline-style:solid}
 .entry:hover .anchor,.entry:target .anchor,.anchor:focus-visible{opacity:1}
 
-/* 6. Responsive. On a narrow screen the header is one system: rows one
-   control tall (32px) in two aligned columns, from the nav to the dates. */
-@media (max-width:640px){
+/* 6. Responsive. Below Primer's lg (1012px), where the nav and the toolbar
+   no longer fit one row each, the header is one system: rows one control
+   tall (32px) in aligned columns, from the nav to the dates. */
+@media (max-width:1011px){
   /* 6.1 Nav: two columns of 32px rows, the second sized by its longest
      label ("Security advisories" with its icon) and the first taking the
      rest, so no label wraps; tabs lose their side padding and keep icon
@@ -130,4 +133,16 @@ ol{padding:0;list-style:none}
   /* 6.3 Rows without the anchor column; the spine sits closer to the edge. */
   .entry{grid-template-columns:1fr auto;padding-left:20px}
   .entry .anchor{display:none}
+}
+/* 6.4 Columns grow with the width, each as wide as its longest label and
+   the spare width spread between them, so the first label starts at the
+   left edge and the last ends at the right edge, where the icon row ends.
+   Three columns from 400px, six from 640px. */
+@media (min-width:400px) and (max-width:1011px){
+  .tabs{grid-template-columns:repeat(3,max-content);justify-content:space-between}
+  /* The two dates share one row from here: label, field, label, field. */
+  .date-range{grid-template-columns:auto 1fr auto 1fr}
+}
+@media (min-width:640px) and (max-width:1011px){
+  .tabs{grid-template-columns:repeat(6,max-content)}
 }
