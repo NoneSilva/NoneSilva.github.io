@@ -112,13 +112,14 @@ ol{padding:0;list-style:none}
      label ("Security advisories" with its icon) and the first taking the
      rest, so no label wraps; tabs lose their side padding and keep icon
      tight to label. The profile links weigh less: one row of their icons
-     alone at the right, 8px apart as items of one group in Primer, each
-     the row's 32px tall. */
+     alone at the right, 8px apart as items of one group in Primer. Each
+     icon sits at the right end of a 24px-wide, row-tall box, so the boxes
+     touch and a tap next to an icon lands on it. */
   .tabs{display:grid;grid-template-columns:minmax(0,1fr) max-content;grid-auto-rows:var(--control-h);align-items:center;gap:0}
   .tabs-list{display:contents}
   .tab{height:var(--control-h);padding-inline:0;gap:var(--space-1)}
-  .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:var(--space-2)}
-  .profile-links a,.theme{width:var(--icon);height:var(--control-h);justify-content:center;gap:0;font-size:0}
+  .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:0}
+  .profile-links a,.theme{width:calc(var(--icon) + var(--space-2));height:var(--control-h);justify-content:flex-end;gap:0;font-size:0}
   /* 6.2 Toolbar: title centred on its own row (breaking, if it must,
      before the name), then search, then each date on its own 32px row,
      label beside a field that takes the rest. */
