@@ -119,9 +119,10 @@ ol{padding:0;list-style:none}
   .tab{height:var(--control-h);padding-inline:0;gap:var(--space-1)}
   .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:var(--space-2)}
   .profile-links a,.theme{width:var(--icon);height:var(--control-h);justify-content:center;gap:0;font-size:0}
-  /* 6.2 Toolbar: title, then search, then each date on its own 32px row,
+  /* 6.2 Toolbar: title centred on its own row (breaking, if it must,
+     before the name), then search, then each date on its own 32px row,
      label beside a field that takes the rest. */
-  .title{flex-basis:100%;white-space:normal}
+  .title{flex-basis:100%;margin-right:0;white-space:normal;text-align:center}
   .search{flex-basis:100%}
   .date-range{flex-basis:100%;display:grid;grid-template-columns:auto 1fr;gap:var(--space-2)}
   .date-range .input{width:auto;min-width:0}
