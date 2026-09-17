@@ -104,6 +104,7 @@ ol{padding:0;list-style:none}
 /* 5. States (shape only; colours in skin.css) */
 .tab[aria-pressed="true"]{font-weight:600}
 .profile-links a:hover,.theme:hover,.repo:hover,.item:hover{text-decoration:underline}
+.entry.commits .repo:hover{text-decoration:none}
 .entry:target{outline-width:1px;outline-style:solid}
 .entry:hover .anchor,.entry:target .anchor,.anchor:focus-visible{opacity:1}
 

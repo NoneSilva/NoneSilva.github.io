@@ -90,6 +90,7 @@ svg{fill:currentColor}
 .tab[aria-pressed="true"]{border-bottom-color:var(--tab-active)}
 .tab[aria-pressed="true"] svg{color:var(--fg)}
 .profile-links a:hover,.theme:hover,.repo:hover{color:var(--fg)}
+.entry.commits .repo:hover{color:inherit}
 .item:hover{color:var(--accent)}
 .entry:hover,.entry:target{background:var(--canvas-muted)}
 .item:hover{color:var(--accent);text-decoration:underline}
