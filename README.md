@@ -1,6 +1,6 @@
-# erts-sched.github.io
+# NoneSilva.github.io
 
-Source of <https://erts-sched.github.io/>, built by GitHub Pages with Jekyll.
+Source of <https://NoneSilva.github.io/>, built by GitHub Pages with Jekyll.
 
 ## Contributions timeline
 
