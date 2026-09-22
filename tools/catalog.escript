@@ -2,11 +2,27 @@
 %%! -noshell
 %% Copyright (c) 2026 Guilherme Silva. All rights reserved.
 %% Catalog of one GitHub account's public contributions, as GitHub itself
-%% counts them (contributionsCollection), collected month by month through
-%% the authenticated `gh` CLI. Writes site/contributions.json and
-%% site/contributions.js. Private repositories are never listed; the API
-%% reports them only as a count, which is kept as meta.restricted.
+%% counts them (contributionsCollection), collected in windows of up to
+%% twelve months through the authenticated `gh` CLI. Writes
+%% site/contributions.json and site/contributions.js. Private repositories
+%% are never listed; the API reports them only as a count, which is kept as
+%% meta.restricted.
+%%
+%% Calls that do not depend on each other run at the same time, at most
+%% ?MAX_CONCURRENT at once. Three waits remain because the data imposes
+%% them: the account (login, creation date, id) before the windows; every
+%% window before the per-repository lookups, which need the list of
+%% repositories; every lookup before the files are written.
 -mode(compile).
+
+%% contributionsCollection accepts a span of at most one year.
+-define(WINDOW_MONTHS, 12).
+%% GitHub rejects more than 100 concurrent requests from one account.
+-define(MAX_CONCURRENT, 8).
+%% Repositories per latest-commit query: one alias each in one document.
+-define(LATEST_BATCH, 50).
+%% Largest page the API serves, and its cap on repositories with commits.
+-define(PAGE, 100).
 
 -define(QUERY, <<
 "query($login:String!, $from:DateTime!, $to:DateTime!, $prAfter:String, $issueAfter:String, $reviewAfter:String) {"
@@ -14,7 +30,7 @@
 "    restrictedContributionsCount"
 "    commitContributionsByRepository(maxRepositories:100) {"
 "      repository { nameWithOwner isPrivate url }"
-"      contributions(first:100) { nodes { occurredAt commitCount } } }"
+"      contributions(first:100) { pageInfo { hasNextPage } nodes { occurredAt commitCount } } }"
 "    pullRequestContributions(first:100, after:$prAfter) {"
 "      pageInfo { hasNextPage endCursor }"
 "      nodes { occurredAt pullRequest { title url number state merged isDraft repository { nameWithOwner isPrivate url } } } }"
@@ -26,42 +42,48 @@
 "      nodes { occurredAt pullRequestReview { url state pullRequest { title url number repository { nameWithOwner isPrivate url } } } } }"
 "  } } }">>).
 
+-define(ACCOUNT, "login createdAt id name socialAccounts(first:10) { nodes { provider url } }").
+
 main(Args) ->
     Opts = opts(Args, #{out => <<"contributions">>}),
-    Viewer = viewer(),
-    Login = maps:get(login, Opts, maps:get(<<"login">>, Viewer)),
+    Account = account(maps:get(login, Opts, undefined)),
+    Login = get([<<"login">>], Account),
     Since = case maps:get(since, Opts, undefined) of
-                undefined -> ym(maps:get(<<"createdAt">>, Viewer));
+                undefined -> ym(get([<<"createdAt">>], Account));
                 S -> ym(S)
             end,
     {{Y, M, _}, _} = calendar:universal_time(),
-    Months = months(Since, {Y, M}),
-    io:format("login ~s, ~B months from ~s~n", [Login, length(Months), fmt_ym(Since)]),
-    %% Keyed by id across months: the API can return the same contribution
-    %% in two adjacent windows around a month boundary.
+    Windows = chunks(?WINDOW_MONTHS, months(Since, {Y, M})),
+    io:format("login ~s, ~B windows from ~s~n", [Login, length(Windows), fmt_ym(Since)]),
+    Collected = pmap(fun(W) -> collect_window(Login, W) end, Windows),
+    %% Keyed by id across windows: the API can return the same contribution
+    %% in two adjacent windows around a boundary.
     {ById, Restricted} =
-        lists:foldl(
-          fun({MY, MM}, {AccE, AccR}) ->
-                  {E, R} = collect_month(Login, MY, MM),
-                  io:format("  ~s: ~B public entries, ~B restricted~n", [fmt_ym({MY, MM}), length(E), R]),
-                  {lists:foldl(fun(X, A) -> A#{maps:get(id, X) => X} end, AccE, E), AccR + R}
-          end, {#{}, 0}, Months),
+        lists:foldl(fun({E, R}, {AccE, AccR}) ->
+                            {lists:foldl(fun(X, A) -> A#{maps:get(id, X) => X} end, AccE, E), AccR + R}
+                    end, {#{}, 0}, Collected),
     Repos = lists:usort([maps:get(repo, E) || E <- maps:values(ById)]),
+    CommitRepos = lists:usort([maps:get(repo, E) || E <- maps:values(ById), maps:get(type, E) =:= <<"commits">>]),
     %% Advisories: the global API cannot filter by credited user, but each
     %% repository lists its published advisories with credits. Look in every
-    %% repository the account has contributed to.
-    Advisories = lists:append([advisories(Login, R) || R <- Repos]),
+    %% repository the account has contributed to. Latest commit: the one the
+    %% "All" view shows instead of the monthly totals, in every repository
+    %% the account committed to. Both need only the lists above, so they run
+    %% together.
+    Lookups = [{advisories, R} || R <- Repos]
+              ++ [{latest, Batch} || Batch <- chunks(?LATEST_BATCH, CommitRepos)],
+    Found = lists:zip(Lookups,
+                      pmap(fun({advisories, R}) -> advisories(Login, R);
+                              ({latest, Batch}) -> latest_commits(get([<<"id">>], Account), Login, Batch)
+                           end, Lookups)),
+    Advisories = lists:append([E || {{advisories, _}, E} <- Found]),
+    Latest = lists:append([E || {{latest, _}, E} <- Found]),
     io:format("  advisories crediting ~s in ~B repositories: ~B~n", [Login, length(Repos), length(Advisories)]),
-    %% The latest commit by the account in every repository it committed to:
-    %% the "All" view shows that one commit instead of the monthly totals.
-    CommitRepos = lists:usort([maps:get(repo, E) || E <- maps:values(ById), maps:get(type, E) =:= <<"commits">>]),
-    Latest = lists:filtermap(fun(R) -> latest_commit(Login, R) end, CommitRepos),
     io:format("  latest commit found in ~B of ~B repositories~n", [length(Latest), length(CommitRepos)]),
     Sorted = lists:sort(fun(A, B) -> sort_key(A) >= sort_key(B) end, maps:values(ById) ++ Advisories ++ Latest),
-    {Name, Links} = profile(Login),
     Meta = #{login => Login,
-             name => Name,
-             links => Links,
+             name => case get([<<"name">>], Account) of null -> Login; N -> N end,
+             links => links(Login, Account),
              since => fmt_ym(Since),
              generated => iso_now(),
              public => length(Sorted),
@@ -99,47 +121,105 @@ opts(["--out", D | R], O) -> opts(R, O#{out => list_to_binary(D)});
 opts([], O) -> O;
 opts([X | _], _) -> io:format("unknown argument ~s~n", [X]), halt(2).
 
+%% ---- account -------------------------------------------------------------
+
+%% Login, creation date, node id, display name and social accounts: of the
+%% authenticated account, or of the given login.
+account(undefined) ->
+    get([<<"data">>, <<"viewer">>], graphql(<<"{ viewer { " ?ACCOUNT " } }">>, []));
+account(Login) ->
+    get([<<"data">>, <<"user">>],
+        graphql(<<"query($login:String!) { user(login:$login) { " ?ACCOUNT " } }">>, [{<<"login">>, Login}])).
+
+%% Header links: the profile URL plus the social accounts listed on the
+%% profile (LinkedIn and the like), keyed by provider.
+links(Login, Account) ->
+    lists:foldl(fun(N, Acc) -> Acc#{lower(get([<<"provider">>], N)) => get([<<"url">>], N)} end,
+                #{<<"github">> => <<"https://github.com/", Login/binary>>},
+                get([<<"socialAccounts">>, <<"nodes">>], Account)).
+
 %% ---- collection ------------------------------------------------------------
 
-viewer() ->
-    D = graphql(<<"{ viewer { login createdAt } }">>, []),
-    get([<<"data">>, <<"viewer">>], D).
-
-%% Display name and links from the GitHub profile: the profile URL plus the
-%% social accounts listed there (LinkedIn and the like), keyed by provider.
-profile(Login) ->
-    D = graphql(<<"query($login:String!) { user(login:$login) { name socialAccounts(first:10) { nodes { provider url } } } }">>,
-                [{<<"login">>, Login}]),
-    U = get([<<"data">>, <<"user">>], D),
-    Name = case get([<<"name">>], U) of null -> Login; N -> N end,
-    Nodes = get([<<"socialAccounts">>, <<"nodes">>], U),
-    Links = lists:foldl(fun(N, Acc) -> Acc#{lower(get([<<"provider">>], N)) => get([<<"url">>], N)} end,
-                        #{<<"github">> => <<"https://github.com/", Login/binary>>}, Nodes),
-    {Name, Links}.
-
-collect_month(Login, Y, M) ->
-    From = fmt_day(Y, M),
-    {NY, NM} = next({Y, M}),
-    To = fmt_day(NY, NM),
-    page(Login, From, To, #{pr => first, issue => first, review => first}, #{}, undefined).
-
-page(Login, From, To, Cursors, Acc, Fixed) ->
-    case lists:all(fun(V) -> V =:= done end, maps:values(Cursors)) of
-        true ->
-            {Commits, Restricted} = Fixed,
-            {maps:values(Acc) ++ Commits, Restricted};
-        false ->
-            Vars = [{<<"login">>, Login}, {<<"from">>, From}, {<<"to">>, To} | cursor_vars(Cursors)],
-            CC = get([<<"data">>, <<"user">>, <<"contributionsCollection">>], graphql(?QUERY, Vars)),
-            Fixed1 = case Fixed of
-                         undefined -> {commit_entries(Login, CC), get([<<"restrictedContributionsCount">>], CC)};
-                         _ -> Fixed
-                     end,
-            {Acc1, Cursors1} =
-                lists:foldl(fun(Kind, {A, C}) -> merge(Kind, CC, A, C) end,
-                            {Acc, Cursors}, [pr, issue, review]),
-            page(Login, From, To, Cursors1, Acc1, Fixed1)
+%% One window of consecutive months. The first page tells whether the
+%% window fits the API's caps (100 repositories with commits, 100 commit
+%% days per repository). Over the caps, or rejected by the API, the window
+%% is split in half and each half collected again, down to single months.
+%% A month is never split, so every "N commits" row is one whole month.
+collect_window(Login, Months) ->
+    Label = window_label(Months),
+    {From, To} = span(Months),
+    case query_window(Login, From, To, first_cursors()) of
+        {ok, CC} ->
+            case truncated(CC) of
+                true when length(Months) > 1 ->
+                    io:format("  ~s: over the API caps, splitting~n", [Label]),
+                    split_window(Login, Months);
+                Truncated ->
+                    case Truncated of
+                        true -> io:format("  ~s: over the API caps in one month, commits are missing~n", [Label]);
+                        false -> ok
+                    end,
+                    {Acc, Cursors} = merge_kinds(CC, #{}, first_cursors()),
+                    Entries = maps:values(pages(Login, From, To, Cursors, Acc)) ++ commit_entries(Login, CC),
+                    Restricted = get([<<"restrictedContributionsCount">>], CC),
+                    io:format("  ~s: ~B public entries, ~B restricted~n", [Label, length(Entries), Restricted]),
+                    {Entries, Restricted}
+            end;
+        {error, Out} when length(Months) > 1 ->
+            io:format("  ~s: rejected, splitting~n~s~n", [Label, Out]),
+            split_window(Login, Months);
+        {error, Out} ->
+            io:format("  ~s: ~s~n", [Label, Out]),
+            halt(1)
     end.
+
+split_window(Login, Months) ->
+    {A, B} = lists:split(length(Months) div 2, Months),
+    {EA, RA} = collect_window(Login, A),
+    {EB, RB} = collect_window(Login, B),
+    {EA ++ EB, RA + RB}.
+
+%% The first day of the first month to the last second of the last month.
+span(Months) ->
+    {Y1, M1} = hd(Months),
+    {Y2, M2} = lists:last(Months),
+    {iolist_to_binary(io_lib:format("~4..0B-~2..0B-01T00:00:00Z", [Y1, M1])),
+     iolist_to_binary(io_lib:format("~4..0B-~2..0B-~2..0BT23:59:59Z", [Y2, M2, calendar:last_day_of_the_month(Y2, M2)]))}.
+
+window_label([Month]) -> fmt_ym(Month);
+window_label(Months) -> <<(fmt_ym(hd(Months)))/binary, "..", (fmt_ym(lists:last(Months)))/binary>>.
+
+first_cursors() -> #{pr => first, issue => first, review => first}.
+
+truncated(CC) ->
+    ByRepo = get([<<"commitContributionsByRepository">>], CC),
+    length(ByRepo) >= ?PAGE
+        orelse lists:any(fun(R) -> get([<<"contributions">>, <<"pageInfo">>, <<"hasNextPage">>], R) end, ByRepo).
+
+query_window(Login, From, To, Cursors) ->
+    Vars = [{<<"login">>, Login}, {<<"from">>, From}, {<<"to">>, To} | cursor_vars(Cursors)],
+    case graphql_result(?QUERY, Vars) of
+        {ok, D} -> {ok, get([<<"data">>, <<"user">>, <<"contributionsCollection">>], D)};
+        Error -> Error
+    end.
+
+%% Remaining pages of the pull request, issue and review connections. Each
+%% kind advances its own cursor; a kind whose last page has been read is
+%% `done` and ignored in the answers that follow.
+pages(Login, From, To, Cursors, Acc) ->
+    case lists:all(fun(V) -> V =:= done end, maps:values(Cursors)) of
+        true -> Acc;
+        false ->
+            CC = case query_window(Login, From, To, Cursors) of
+                     {ok, C} -> C;
+                     {error, Out} -> io:format("~s~n", [Out]), halt(1)
+                 end,
+            {Acc1, Cursors1} = merge_kinds(CC, Acc, Cursors),
+            pages(Login, From, To, Cursors1, Acc1)
+    end.
+
+merge_kinds(CC, Acc, Cursors) ->
+    lists:foldl(fun(Kind, {A, C}) -> merge(Kind, CC, A, C) end, {Acc, Cursors}, [pr, issue, review]).
 
 cursor_vars(Cursors) ->
     [{var_name(K), C} || {K, C} <- maps:to_list(Cursors), is_binary(C)].
@@ -239,28 +319,36 @@ entry(review, N) ->
               state => lower(get([<<"state">>], R))}
     end.
 
+%% One "N commits" entry per public repository per calendar month: the
+%% commits counted in that month and the last day with one.
 commit_entries(Login, CC) ->
-    lists:filtermap(
+    lists:flatmap(
       fun(R) ->
               Repo = get([<<"repository">>], R),
               Nodes = get([<<"contributions">>, <<"nodes">>], R),
-              case get([<<"isPrivate">>], Repo) orelse Nodes =:= [] of
-                  true -> false;
+              case get([<<"isPrivate">>], Repo) of
+                  true -> [];
                   false ->
-                      Count = lists:sum([get([<<"commitCount">>], X) || X <- Nodes]),
-                      Last = lists:max([day(get([<<"occurredAt">>], X)) || X <- Nodes]),
                       RepoName = get([<<"nameWithOwner">>], Repo),
                       RepoUrl = get([<<"url">>], Repo),
-                      {true, #{id => id([<<"commits">>, RepoName, binary:part(Last, 0, 7)]),
-                               type => <<"commits">>,
-                               date => Last,
-                               repo => RepoName,
-                               repo_url => RepoUrl,
-                               number => null,
-                               title => <<(integer_to_binary(Count))/binary, " commits">>,
-                               url => <<RepoUrl/binary, "/commits?author=", Login/binary>>,
-                               state => <<"pushed">>,
-                               count => Count}}
+                      ByMonth = lists:foldl(
+                                  fun(X, Acc) ->
+                                          Day = day(get([<<"occurredAt">>], X)),
+                                          Month = binary:part(Day, 0, 7),
+                                          {Count, Last} = maps:get(Month, Acc, {0, Day}),
+                                          Acc#{Month => {Count + get([<<"commitCount">>], X), max(Last, Day)}}
+                                  end, #{}, Nodes),
+                      [#{id => id([<<"commits">>, RepoName, Month]),
+                         type => <<"commits">>,
+                         date => Last,
+                         repo => RepoName,
+                         repo_url => RepoUrl,
+                         number => null,
+                         title => <<(integer_to_binary(Count))/binary, " commits">>,
+                         url => <<RepoUrl/binary, "/commits?author=", Login/binary>>,
+                         state => <<"pushed">>,
+                         count => Count}
+                       || {Month, {Count, Last}} <- maps:to_list(ByMonth)]
               end
       end, get([<<"commitContributionsByRepository">>], CC)).
 
@@ -291,45 +379,96 @@ advisories(Login, Repo) ->
             []   %% no access or advisories disabled for this repository
     end.
 
-latest_commit(Login, Repo) ->
-    case gh([<<"api">>, <<"repos/", Repo/binary, "/commits?author=", Login/binary, "&per_page=1">>]) of
-        {ok, Out} ->
-            case json:decode(Out) of
-                [C | _] ->
-                    Sha = get([<<"sha">>], C),
-                    Short = binary:part(Sha, 0, 7),
-                    At = get([<<"commit">>, <<"committer">>, <<"date">>], C),
-                    {true, #{id => id([<<"commit">>, Repo, Short]),
-                             type => <<"commit">>,
-                             at => At,
-                             date => day(At),
-                             repo => Repo,
-                             repo_url => <<"https://github.com/", Repo/binary>>,
-                             number => Short,
-                             title => <<"Latest commit">>,
-                             %% The link opens all of the account's commits in the
-                             %% repository, not this one commit.
-                             url => <<"https://github.com/", Repo/binary, "/commits?author=", Login/binary>>,
-                             state => <<"latest">>}};
-                _ -> false
-            end;
-        {error, _, _} -> false
+%% The latest commit by the account on the default branch of each
+%% repository, in one query: one alias per repository, the repository
+%% names as variables. A repository with no such commit, or with no default
+%% branch, yields nothing.
+latest_commits(_UserId, _Login, []) ->
+    [];
+latest_commits(UserId, Login, Repos) ->
+    Indexed = lists:zip(lists:seq(0, length(Repos) - 1), Repos),
+    Decls = [io_lib:format(", $o~B:String!, $n~B:String!", [I, I]) || {I, _} <- Indexed],
+    Fields = [io_lib:format(" r~B: repository(owner:$o~B, name:$n~B) { defaultBranchRef { target {"
+                            " ... on Commit { history(first:1, author:{id:$uid}) { nodes { oid committedDate } } } } } }",
+                            [I, I, I]) || {I, _} <- Indexed],
+    Query = iolist_to_binary(["query($uid:ID!", Decls, ") {", Fields, " }"]),
+    Vars = [{<<"uid">>, UserId}
+            | lists:append([[{<<"o", (integer_to_binary(I))/binary>>, Owner},
+                             {<<"n", (integer_to_binary(I))/binary>>, Name}]
+                            || {I, R} <- Indexed, [Owner, Name] <- [binary:split(R, <<"/">>)]])],
+    D = graphql(Query, Vars),
+    lists:filtermap(
+      fun({I, Repo}) ->
+              case get([<<"data">>, <<"r", (integer_to_binary(I))/binary>>], D) of
+                  #{<<"defaultBranchRef">> := #{<<"target">> := #{<<"history">> := #{<<"nodes">> := [C | _]}}}} ->
+                      Sha = get([<<"oid">>], C),
+                      Short = binary:part(Sha, 0, 7),
+                      At = get([<<"committedDate">>], C),
+                      {true, #{id => id([<<"commit">>, Repo, Short]),
+                               type => <<"commit">>,
+                               at => At,
+                               date => day(At),
+                               repo => Repo,
+                               repo_url => <<"https://github.com/", Repo/binary>>,
+                               number => Short,
+                               title => <<"Latest commit">>,
+                               %% The link opens all of the account's commits in the
+                               %% repository, not this one commit.
+                               url => <<"https://github.com/", Repo/binary, "/commits?author=", Login/binary>>,
+                               state => <<"latest">>}};
+                  _ -> false
+              end
+      end, Indexed).
+
+%% ---- concurrency -----------------------------------------------------------
+
+%% F applied to every element in its own process, at most ?MAX_CONCURRENT
+%% at a time, results in the order of the list. A process that fails takes
+%% the whole run down: partial output would read as a complete catalog.
+pmap(F, L) ->
+    pmap(F, lists:zip(lists:seq(1, length(L)), L), #{}, #{}).
+
+pmap(_F, [], Running, Done) when map_size(Running) =:= 0 ->
+    [R || {_, R} <- lists:keysort(1, maps:to_list(Done))];
+pmap(F, [{I, X} | Pending], Running, Done) when map_size(Running) < ?MAX_CONCURRENT ->
+    {_Pid, Ref} = spawn_monitor(fun() -> exit({result, F(X)}) end),
+    pmap(F, Pending, Running#{Ref => I}, Done);
+pmap(F, Pending, Running, Done) ->
+    receive
+        {'DOWN', Ref, process, _, {result, R}} when is_map_key(Ref, Running) ->
+            {I, Running1} = maps:take(Ref, Running),
+            pmap(F, Pending, Running1, Done#{I => R});
+        {'DOWN', Ref, process, _, Reason} when is_map_key(Ref, Running) ->
+            io:format("task ~B failed: ~p~n", [maps:get(Ref, Running), Reason]),
+            halt(1)
     end.
+
+chunks(_N, []) -> [];
+chunks(N, L) when length(L) =< N -> [L];
+chunks(N, L) -> {H, T} = lists:split(N, L), [H | chunks(N, T)].
 
 %% ---- gh --------------------------------------------------------------------
 
 graphql(Query, Vars) ->
+    case graphql_result(Query, Vars) of
+        {ok, D} -> D;
+        {error, Out} -> io:format("~s~n", [Out]), halt(1)
+    end.
+
+%% {ok, Response} or {error, Text}: gh failing, or a response that carries
+%% GraphQL errors.
+graphql_result(Query, Vars) ->
     Args = [<<"api">>, <<"graphql">>, <<"-f">>, <<"query=", Query/binary>>
             | lists:append([[<<"-f">>, <<K/binary, "=", V/binary>>] || {K, V} <- Vars])],
     case gh(Args) of
         {ok, Out} ->
             D = json:decode(Out),
             case maps:get(<<"errors">>, D, []) of
-                [] -> D;
-                Errs -> io:format("graphql errors: ~p~n", [Errs]), halt(1)
+                [] -> {ok, D};
+                Errs -> {error, io_lib:format("graphql errors: ~p", [Errs])}
             end;
         {error, Status, Out} ->
-            io:format("gh exited ~B:~n~s~n", [Status, Out]), halt(1)
+            {error, io_lib:format("gh exited ~B:~n~s", [Status, Out])}
     end.
 
 gh(Args) ->
@@ -378,8 +517,6 @@ rank(<<"commits">>) -> 0.
 ym(<<Y:4/binary, "-", M:2/binary, _/binary>>) -> {binary_to_integer(Y), binary_to_integer(M)}.
 
 fmt_ym({Y, M}) -> iolist_to_binary(io_lib:format("~4..0B-~2..0B", [Y, M])).
-
-fmt_day(Y, M) -> iolist_to_binary(io_lib:format("~4..0B-~2..0B-01T00:00:00Z", [Y, M])).
 
 next({Y, 12}) -> {Y + 1, 1};
 next({Y, M}) -> {Y, M + 1}.

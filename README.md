@@ -21,6 +21,11 @@ account.
 in a minimal DOM and checks what the rows link to. Run it after changing the
 page or the generator.
 
+`escript tools/test_catalog.escript` runs the generator against
+`tools/fake_gh.escript`, a stand-in for `gh` that answers from a hand-written
+dataset, and checks the files it writes and the calls it makes: how many, in
+what order, how many at a time. Run it after changing the generator.
+
 `404.html` sends any unknown URL to the home page.
 
 The favicon is the flag of Brazil as flat geometry (`contributions/favicon.svg`),
@@ -28,8 +33,10 @@ with PNG renders at 16, 32, 64 and 180 px for browsers that do not take SVG
 (`contributions/favicon-*.png`, `contributions/apple-touch-icon.png`).
 
 - Source: the account's `contributionsCollection`, one GraphQL query per
-  month since the account was created, paginated. Only the account's own
-  data, read through its own API.
+  window of up to twelve months since the account was created, paginated;
+  a window over the API's caps is split in half, down to single months.
+  Calls that do not depend on each other run at the same time, at most
+  eight at once. Only the account's own data, read through its own API.
 - Listed: issues, pull requests, reviews, security advisories crediting the
   account (from the advisories of every repository it contributed to), the
   latest commit per repository (shown in "All"), and commits aggregated per
