@@ -30,7 +30,7 @@ const doc = {
   documentElement: new Node("html"),
 };
 // Elements the page expects to exist in the HTML.
-for (const id of ["chips", "links", "q", "from", "to", "timeline", "login", "updated", "name"]) {
+for (const id of ["chips", "links", "q", "from", "to", "timeline", "login", "updated", "owner"]) {
   const n = new Node(id === "q" || id === "from" || id === "to" ? "input" : "div");
   n.value = ""; n.querySelectorAll = () => []; byId[id] = n;
 }
@@ -104,5 +104,13 @@ check(!/autofocus/.test(html), "no autofocus on load");
 // Cache busting: the page loads the data file with exactly one version stamp.
 const stamps = html.match(/contributions\/contributions\.js\?v=\d+/g) || [];
 check(stamps.length === 1 && !/contributions\.js\?v=\d+\?v=/.test(html), `data file linked with one version stamp: ${stamps[0]}`);
+// The account names the heading, the footer and the tab, and all three read
+// the same field, so a rename cannot leave one of them behind.
+check(byId.login.textContent === "NoneSilva" && byId.owner.textContent === "NoneSilva",
+      `heading and footer name the account: ${byId.owner.textContent}`);
+check(doc.title === "NoneSilva's contributions" && /<title>NoneSilva&#39;s contributions<\/title>/.test(html.replace(/'/g, "&#39;")),
+      `tab title follows the account, in the page and in the HTML: ${doc.title}`);
+check(!/Guilherme/.test(byId.owner.textContent + doc.title), "no display name on the page");
+
 console.log(failures ? `\n${failures} check(s) failed` : "\nall checks passed");
 process.exit(failures ? 1 : 0);

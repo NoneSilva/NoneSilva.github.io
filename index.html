@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Guilherme Silva</title>
+<title>NoneSilva's contributions</title>
 <link rel="icon" type="image/svg+xml" href="contributions/favicon.svg">
 <link rel="icon" type="image/png" sizes="16x16" href="contributions/favicon-16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="contributions/favicon-32.png">
@@ -37,7 +37,7 @@
   <div class="app-content" id="content">
     <div class="container">
       <ol class="timeline" id="timeline"></ol>
-      <footer class="signoff"><span>Public contributions as a timeline, by <span id="name"></span> · <span class="updated" id="updated"></span></span></footer>
+      <footer class="signoff"><span><span id="owner"></span>'s public contributions · <span class="updated" id="updated"></span></span></footer>
     </div>
   </div>
 </main>
@@ -115,14 +115,19 @@
   function sinceName(ym){ var p = ym.split("-"); return MONTHS[+p[1]-1].slice(0,3) + " " + p[0]; }
   function dayName(d){ var p = d.split("-"); return MONTHS[+p[1]-1].slice(0,3) + " " + (+p[2]) + ", " + p[0]; }
 
+  // The account names the page in three places: the heading, the footer and
+  // the tab. All three come from the data, so a renamed account leaves no
+  // stale name behind; the title in the HTML is what a reader sees until
+  // this script runs.
   document.getElementById("login").textContent = meta.login || "";
+  document.getElementById("owner").textContent = meta.login || "";
+  if (meta.login) document.title = meta.login + "'s contributions";
   // The update stamp is one clock for everyone: "Updated to Sep 15, 2026 at 13:49 UTC".
   function utcStamp(iso){
     var d = new Date(iso);
     return MONTHS[d.getUTCMonth()].slice(0,3) + " " + d.getUTCDate() + ", " + d.getUTCFullYear() + " at " + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + " UTC";
   }
   document.getElementById("updated").textContent = "Updated to " + (meta.generated ? utcStamp(meta.generated) : "");
-  document.getElementById("name").textContent = meta.name || meta.login || "";
   var root = document.documentElement;
   var themeBtn = el("button", {type:"button", class:"theme", id:"theme", "aria-label":"Switch theme", title:"Switch theme"});
   function currentTheme(){
