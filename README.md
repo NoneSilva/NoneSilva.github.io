@@ -17,9 +17,9 @@ serves for its light and dark themes.
 The generator is the integration registered for the account in the
 [GitHub Developer Program](https://docs.github.com/en/get-started/exploring-integrations/github-developer-program).
 
-## Generator
+## Updating the data
 
-One command regenerates the data:
+One command updates it:
 
 ```sh
 escript tools/catalog.escript
