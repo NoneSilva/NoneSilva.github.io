@@ -2,7 +2,7 @@
 
 Source of <https://NoneSilva.github.io/>, built by GitHub Pages with Jekyll.
 
-## Contributions timeline
+## Public contributions
 
 The home page (`index.html`) is a searchable timeline of the account's public
 contributions, as GitHub records them: static HTML, the styles and data in
