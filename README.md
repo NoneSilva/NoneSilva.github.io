@@ -17,6 +17,9 @@ git push
 Requirements: OTP 27 or later (`json` module) and `gh` logged in as the
 account.
 
+The generator is the integration registered for the account in the
+[GitHub Developer Program](https://docs.github.com/en/get-started/exploring-integrations/github-developer-program).
+
 `node tools/test_page.js` renders the page's script against the generated data
 in a minimal DOM and checks what the rows link to. Run it after changing the
 page or the generator.
