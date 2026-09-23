@@ -17,13 +17,13 @@ serves for its light and dark themes.
 The generator is the integration registered for the account in the
 [GitHub Developer Program](https://docs.github.com/en/get-started/exploring-integrations/github-developer-program).
 
-## Updating the data
+## Updating the public contributions data
 
-One command updates it:
+To update it, run:
 
 ```sh
 escript tools/catalog.escript
-git commit -am "Update contributions"
+git commit -am "Update public contributions data"
 git push
 ```
 
