@@ -59,9 +59,23 @@ This repository is public so that the site can be served, but no license is
 granted: the code, styles and text may not be copied, modified or
 redistributed without written permission.
 
-What is claimed is the implementation: the generator, the page, the CSS
-architecture and its structure. The visual conventions the page follows
-(GitHub's tab bar, list rows, state icons and colours) are GitHub's design,
-not claimed here; the icon paths are Octicons, copyright GitHub Inc., under
-their own MIT license; the typeface is Mona Sans, copyright GitHub Inc.,
-under the SIL Open Font License (`contributions/fonts/OFL.txt`).
+What is claimed is the implementation: the generator, the page and the two
+stylesheets. The visual conventions the page follows (GitHub's tab bar, list
+rows, state icons and colours) are layout, free to follow and not claimed
+here. In the words of the U.S. Copyright Office,
+[Circular 33, Works Not Protected by Copyright](https://www.copyright.gov/circs/circ33.pdf),
+section "Layout and Design":
+
+> As a general rule, the Office will not accept a claim to copyright in
+> "format" or "layout." The general layout or format of a book, page, book
+> cover, slide presentation, web page, poster, or form is uncopyrightable
+> because it is a template for expression.
+
+The icon paths are [Octicons](https://github.com/primer/octicons), copyright
+GitHub Inc., under their own MIT license; the LinkedIn mark is LinkedIn's,
+used as a link to the account's profile; the typeface is Mona Sans,
+copyright GitHub Inc., under the SIL Open Font License
+(`contributions/fonts/OFL.txt`). The GitHub mark in the
+header is a registered trademark of GitHub Inc., which no license here
+covers; it appears only as a link to the account's profile, as GitHub's
+[logo guidelines](https://brand.github.com/foundations/logo) permit.
