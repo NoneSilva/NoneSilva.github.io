@@ -49,14 +49,15 @@ The Share or Copy button asks the browser whether it has the system's share shee
 
 The link carries the search, tab and dates in the address, so whoever opens it sees the same filtered list. And the Open Graph meta tags make LinkedIn and WhatsApp show the card with the icon and title.
 
-## Installing the site
+## Installing the site as a PWA
 
-The site can be installed as an app: it has a web app manifest and home screen icons. The page has no install button; the browser offers it.
+It has a web app manifest and home screen icons, but no service worker, so it needs a connection to load. The page has no install button; the browser offers it.
 
-- **Chrome and Edge, on Android and on computers:** the browser menu offers to install it. Chrome on Android may also suggest it after a short visit.
-- **iPhone:** in Safari, the share button, then Add to Home Screen.
+- **Chrome and Edge on computers:** an install icon in the address bar, or the browser menu.
+- **Chrome and Samsung Internet on Android:** the browser menu. Chrome may also suggest it after a short visit.
+- **iPhone:** the browser's share menu, then Add to Home Screen.
 
-Once installed, it opens full screen, without the address bar.
+Once installed, it opens in its own window, without the address bar.
 
 ## Copyright
 
