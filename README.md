@@ -7,7 +7,7 @@ Source of <https://NoneSilva.github.io/>, built by GitHub Pages with Jekyll.
 3. [Share or Copy button](#3-share-or-copy-button)
 4. [Data](#4-data)
 5. [How updates reach visitors](#5-how-updates-reach-visitors)
-6. [Updating the public contributions data](#6-updating-the-public-contributions-data)
+6. [Data refresh](#6-data-refresh)
 7. [GitHub Developer Program](#7-github-developer-program)
 8. [Copyright](#8-copyright)
 
@@ -59,13 +59,13 @@ GitHub Pages renders `index.html` and `404.html` with Jekyll, and both carry the
 
 Because Jekyll renders these pages, they must not contain `{{` or `{%` other than the build revision; the page test checks it.
 
-## 6. Updating the public contributions data
+## 6. Data refresh
 
-To update it, run:
+To refresh the data:
 
 ```sh
 escript tools/catalog.escript
-git commit -am "Update public contributions data"
+git commit -am "Refresh the public contributions data"
 git push
 ```
 
