@@ -1,0 +1,81 @@
+{
+  "widths": {
+    "from": 320,
+    "to": 1400,
+    "step": 20
+  },
+  "targets": {
+    "any": "a[href], button, input, [role=button]",
+    "touch": "#links > *"
+  },
+  "standards": [
+    {
+      "id": "wcag-2.5.8-target-size",
+      "source": "WCAG 2.2, 2.5.8 Target Size (Minimum): https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+      "rule": "Every pointer target is at least 24 by 24 CSS pixels, or has a 24px circle around it that meets no other target.",
+      "check": "target-size",
+      "selector": "any",
+      "min": 24
+    },
+    {
+      "id": "material-touch-target-48",
+      "source": "Material Design 3, density: https://m3.material.io/foundations/layout/understanding-layout/density",
+      "rule": "Accessible targets retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller.",
+      "check": "target-size",
+      "selector": "touch",
+      "min": 48,
+      "widths": [
+        320,
+        1011
+      ]
+    },
+    {
+      "id": "apple-hit-region-44",
+      "source": "Apple Human Interface Guidelines, buttons: https://developer.apple.com/design/human-interface-guidelines/buttons",
+      "rule": "A button needs a hit region of at least 44x44 pt.",
+      "check": "target-size",
+      "selector": "touch",
+      "min": 44,
+      "widths": [
+        320,
+        1011
+      ]
+    },
+    {
+      "id": "android-target-spacing-8",
+      "source": "Google, Android accessibility: https://support.google.com/accessibility/android/answer/7101858",
+      "rule": "Touch targets separated by 8dp of space or more, unless their boxes touch and each box is itself a full target.",
+      "check": "target-spacing",
+      "selector": "any",
+      "min": 8
+    },
+    {
+      "id": "material-compact-margins-16",
+      "source": "Material Design 3, compact layouts: https://m3.material.io/foundations/layout/applying-layout/compact",
+      "rule": "Margins are 16dp from the leading and trailing edge of the window.",
+      "check": "edge-margins",
+      "selector": ".app-header .container",
+      "value": 16,
+      "widths": [
+        320,
+        599
+      ]
+    },
+    {
+      "id": "apple-consistent-spacing",
+      "source": "Apple Human Interface Guidelines, layout: https://developer.apple.com/design/human-interface-guidelines/layout",
+      "rule": "Use consistent spacing: the same air above and below the icon row, and the same 16px at the top and at the end of the header.",
+      "check": "consistent-spacing",
+      "widths": [
+        320,
+        1011
+      ]
+    },
+    {
+      "id": "wcag-1.4.10-reflow",
+      "source": "WCAG 2.2, 1.4.10 Reflow: https://www.w3.org/WAI/WCAG22/Understanding/reflow.html",
+      "rule": "Content presents without horizontal scrolling at a width of 320 CSS pixels.",
+      "check": "reflow"
+    }
+  ]
+}

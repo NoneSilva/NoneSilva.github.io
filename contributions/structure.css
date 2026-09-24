@@ -21,6 +21,7 @@
   --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
   --text-body:14px; --text-small:12px; --text-title:20px; --line-body:1.5;
   --control-h:32px; --tab-h:48px; --label-h:20px; --icon:16px; --radius:6px;
+  --touch:48px;   /* touch target, Material and Android: 48dp */
   --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px;
   --page-max:1012px; --gutter:16px;
 }
@@ -122,15 +123,18 @@ ol{padding:0;list-style:none}
      label ("Security advisories" with its icon) and the first taking the
      rest, so no label wraps; tabs lose their side padding and keep icon
      tight to label. The profile links weigh less: one row of their icons
-     alone at the right, 8px apart as items of one group in Primer. Each
-     icon sits at the right end of a 24px-wide, row-tall box, so the boxes
-     touch and a tap next to an icon lands on it. The nav sits 8px inside
-     the frame, as the tabs' own padding does on the desktop. */
-  .tabs{display:grid;grid-template-columns:minmax(0,1fr) max-content;grid-auto-rows:var(--control-h);align-items:center;gap:0;padding-inline:var(--space-2)}
+     alone at the right, each centred in a 48px touch target, the targets
+     side by side. The last target ends 16px inside the frame, so the last
+     icon keeps to its right the 32px its siblings keep between them. The
+     nav sits 8px inside the frame, as the tabs' own padding does on the
+     desktop. 16px shows above the first tab: the 32px tab row has 6px of
+     air above its 20px ink. */
+  .app-header{padding-top:10px}
+  .tabs{display:grid;grid-template-columns:minmax(0,1fr) max-content;grid-auto-rows:auto;align-items:center;gap:0;padding-inline:var(--space-2)}
   .tabs-list{display:contents}
-  .tab{height:var(--control-h);padding-inline:0;gap:var(--space-1)}
-  .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:0;padding-right:0}
-  .profile-links a,.theme,.share{width:calc(var(--icon) + var(--space-2));height:var(--control-h);justify-content:flex-end;gap:0;font-size:0}
+  .tab{height:var(--control-h);margin-bottom:0;padding-inline:0;gap:var(--space-1)}
+  .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:0;padding-right:var(--space-2)}
+  .profile-links a,.theme,.share{width:var(--touch);height:var(--touch);justify-content:center;gap:0;font-size:0}
   /* Icons alone: tooltips hang from the row's right end, so the longest stays on screen at 320px. */
   .profile-links{position:relative}
   .profile-links .tooltipped{position:static}
@@ -149,8 +153,8 @@ ol{padding:0;list-style:none}
    the spare width spread between them, so the first label starts at the
    left edge and the last ends at the right edge, where the icon row ends.
    Three columns from 400px; six from 700px, where the six labels (590px)
-   keep 16px between them; from 800px the icons fit beside them and join
-   the row. */
+   keep 16px between them; from 940px the four 48px targets fit beside
+   them and join the row, which grows to the desktop's 48px. */
 @media (min-width:400px) and (max-width:1011px){
   .tabs{grid-template-columns:repeat(3,max-content);justify-content:space-between}
   /* The two dates share one row from here: label, field, label, field. */
@@ -163,7 +167,8 @@ ol{padding:0;list-style:none}
   .search{flex-basis:220px}
   .date-range{flex:0 0 auto}
 }
-@media (min-width:800px) and (max-width:1011px){
+@media (min-width:940px) and (max-width:1011px){
   .tabs{grid-template-columns:repeat(6,max-content) max-content}
+  .tab{height:var(--tab-h);margin-bottom:-1px}
   .profile-links{grid-column:auto}
 }
