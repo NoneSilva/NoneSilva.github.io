@@ -1,0 +1,14 @@
+{
+  "name": "nonesilva.github.io",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "node tools/test_page.js && playwright test",
+    "test:page": "node tools/test_page.js",
+    "test:a11y": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0"
+  }
+}

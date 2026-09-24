@@ -3,3 +3,6 @@ description: Contributing to safer software
 exclude:
   - README.md
   - tools
+  - package.json
+  - package-lock.json
+  - playwright.config.mjs
