@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="en" translate="no">
 <!-- Copyright (c) 2026 Guilherme Silva. All rights reserved. -->
@@ -25,8 +27,9 @@
 <meta property="og:image:alt" content="Public contributions of NoneSilva, as GitHub records them: issues, pull requests, reviews, commits and security advisories.">
 <meta name="twitter:card" content="summary">
 <link rel="preload" href="contributions/fonts/MonaSansVF.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="contributions/structure.css">
-<link rel="stylesheet" href="contributions/skin.css">
+<meta name="revision" content="{{ site.github.build_revision }}">
+<link rel="stylesheet" href="contributions/structure.css?v={{ site.github.build_revision }}">
+<link rel="stylesheet" href="contributions/skin.css?v={{ site.github.build_revision }}">
 </head>
 <body>
 <main class="app">
@@ -305,14 +308,14 @@
     var t = document.getElementById(id); if (t) t.scrollIntoView({block:"center"});
   }
 
-  // Back on screen, reload when the published page carries newer data.
-  var dataScript = document.querySelector('script[src*="contributions.js?v="]'), dataSrc = dataScript ? dataScript.getAttribute("src") : "", lastCheck = 0;
+  // Back on screen, reload when a newer commit has been published, data or layout.
+  var revisionMeta = document.querySelector('meta[name="revision"]'), revision = revisionMeta ? revisionMeta.getAttribute("content") : "", lastCheck = 0;
   document.addEventListener("visibilitychange", function(){
     if (document.visibilityState !== "visible" || !window.fetch || Date.now() - lastCheck < 60000) return;
     lastCheck = Date.now();
     window.fetch(location.pathname, {cache: "no-cache"}).then(function(r){ return r.text(); }).then(function(html){
-      var m = html.match(/contributions\/contributions\.js\?v=\d+/);
-      if (m && m[0] !== dataSrc) location.reload();
+      var m = html.match(/<meta name="revision" content="([^"]*)">/);
+      if (m && m[1] !== revision) location.reload();
     }, function(){});
   });
 })();

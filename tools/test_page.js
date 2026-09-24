@@ -30,8 +30,8 @@ const doc = {
   documentElement: new Node("html"),
   listeners: {}, visibilityState: "visible",
   addEventListener(t, f){ (this.listeners[t] = this.listeners[t] || []).push(f); },
-  querySelector: sel => /contributions\.js/.test(sel)
-    ? { getAttribute: () => (fs.readFileSync(path.join(root, "index.html"), "utf8").match(/contributions\/contributions\.js\?v=\d+/) || [""])[0] } : null,
+  querySelector: sel => /meta\[name="revision"\]/.test(sel)
+    ? { getAttribute: () => (fs.readFileSync(path.join(root, "index.html"), "utf8").match(/<meta name="revision" content="([^"]*)">/) || ["", ""])[1] } : null,
 };
 // Elements the page expects to exist in the HTML.
 for (const id of ["chips", "links", "q", "from", "to", "timeline", "login", "updated", "owner"]) {
@@ -166,6 +166,15 @@ for (const page of ["index.html", "404.html"]) {
   check(refs.length >= 5 && stale.length === 0, `${page}: ${refs.length} icon URLs carry their file's version${stale.length ? ", stale: " + stale.map(m => m[1]).join(", ") : ""}`);
 }
 
+// GitHub Pages renders index.html with Jekyll: the published commit versions the styles and the page.
+for (const [page, count, base] of [["index.html", 3, ""], ["404.html", 2, "/"]]) {
+  const src = fs.readFileSync(path.join(root, page), "utf8");
+  const liquid = src.match(/\{\{[^}]*\}\}|\{%[^%]*%\}/g) || [];
+  check(src.startsWith("---\n---\n<!DOCTYPE html>") && liquid.length === count && liquid.every(x => x === "{{ site.github.build_revision }}"),
+        `${page}: front matter, and Liquid only for the build revision (${liquid.length})`);
+  check(["structure", "skin"].every(n => src.includes(`<link rel="stylesheet" href="${base}contributions/${n}.css?v={{ site.github.build_revision }}">`)),
+        `${page}: styles carry the build revision, so a new layout never meets old styles`);
+}
 const manifest = JSON.parse(fs.readFileSync(path.join(root, "icons/home-screen/manifest.webmanifest"), "utf8"));
 const pngSize = f => { const b = fs.readFileSync(path.join(root, "icons/home-screen", f)); return b.readUInt32BE(16) + "x" + b.readUInt32BE(20); };
 const sha8 = f => crypto.createHash("sha1").update(fs.readFileSync(path.join(root, "icons/home-screen", f))).digest("hex").slice(0, 8);
@@ -256,7 +265,7 @@ async function shareChecks(){
 
 async function refreshChecks(){
   const flush = () => new Promise(r => setImmediate(r));
-  const current = (html.match(/contributions\/contributions\.js\?v=\d+/) || [""])[0];
+  const revision = content => `<meta name="revision" content="${content}">`;
   const back = async (served, { offline = false, hidden = false } = {}) => {
     let reloaded = false, asked = null;
     doc.visibilityState = hidden ? "hidden" : "visible";
@@ -268,14 +277,14 @@ async function refreshChecks(){
     doc.visibilityState = "visible";
     return { reloaded, asked };
   };
-  const same = await back(`<script src="${current}"></script>`);
+  const same = await back(revision("{{ site.github.build_revision }}"));
   check(!same.reloaded && same.asked && same.asked[0] === "/" && same.asked[1] === "no-cache",
-        "back on screen: asks the server for the page, and keeps it when the data is the same");
-  const newer = await back(`<script src="contributions/contributions.js?v=1"></script>`);
-  check(newer.reloaded, "back on screen with newer published data: reloads");
+        "back on screen: asks the server for the page, and keeps it when the published commit is the same");
+  const newer = await back(revision("0535a7f"));
+  check(newer.reloaded, "back on screen after a new commit, data or layout: reloads");
   const offline = await back("", { offline: true });
   check(!offline.reloaded, "back on screen without a connection: nothing happens");
-  const hidden = await back(`<script src="contributions/contributions.js?v=1"></script>`, { hidden: true });
+  const hidden = await back(revision("0535a7f"), { hidden: true });
   check(!hidden.asked && !hidden.reloaded, "leaving the screen: no request");
 }
 
