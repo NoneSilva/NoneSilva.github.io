@@ -118,7 +118,7 @@ check(tag("og:title") === "NoneSilva's contributions" && tag("og:title") === (ht
       `og:title is the page title: ${tag("og:title")}`);
 check(!!description && tag("og:description") === description && tag("og:image:alt") === description, "og:description and og:image:alt are the meta description");
 check(tag("og:type") === "website" && tag("twitter:card") === "summary", "og:type website, summary card");
-const img = /^https:\/\/nonesilva\.github\.io\/(contributions\/og-image\.png)\?v=[0-9a-f]{8}$/.exec(tag("og:image") || "");
+const img = /^https:\/\/nonesilva\.github\.io\/(icons\/link-preview\/og-image\.png)\?v=[0-9a-f]{8}$/.exec(tag("og:image") || "");
 const png = img && fs.existsSync(path.join(root, img[1])) ? fs.readFileSync(path.join(root, img[1])) : null;
 check(!!png && png.readUInt32BE(16) === +tag("og:image:width") && png.readUInt32BE(20) === +tag("og:image:height"),
       `og:image is an absolute URL to a file of the site, ${tag("og:image:width")}x${tag("og:image:height")} as declared`);
@@ -153,20 +153,25 @@ check(/\.profile-links a:hover/.test(underlined) && /\.share--sheet:hover/.test(
 const crypto = require("crypto");
 for (const page of ["index.html", "404.html"]) {
   const src = fs.readFileSync(path.join(root, page), "utf8");
-  const refs = [...src.matchAll(/(?:href|content)="(?:https:\/\/nonesilva\.github\.io\/|\/)?contributions\/([\w.-]+\.(?:svg|png|webmanifest))(?:\?v=([0-9a-f]+))?"/g)];
-  const stale = refs.filter(m => m[2] !== crypto.createHash("sha1").update(fs.readFileSync(path.join(root, "contributions", m[1]))).digest("hex").slice(0, 8));
+  const refs = [...src.matchAll(/(?:href|content)="(?:https:\/\/nonesilva\.github\.io\/|\/)?(icons\/[\w-]+\/[\w.-]+)(?:\?v=([0-9a-f]+))?"/g)];
+  const stale = refs.filter(m => !fs.existsSync(path.join(root, m[1])) || m[2] !== crypto.createHash("sha1").update(fs.readFileSync(path.join(root, m[1]))).digest("hex").slice(0, 8));
+  const places = { "rel=\"icon\"": "icons/tab/", "rel=\"apple-touch-icon\"": "icons/home-screen/", "rel=\"manifest\"": "icons/home-screen/", "og:image": "icons/link-preview/" };
+  const misplaced = Object.entries(places).filter(([tag, dir]) => (src.match(new RegExp(tag + '[^>]*"[^"]*(icons/[\\w-]+/)', "g")) || []).some(m => !m.includes(dir)));
+  check(misplaced.length === 0, `${page}: tab icons in icons/tab, home screen in icons/home-screen, link preview in icons/link-preview`);
   check(refs.length >= 5 && stale.length === 0, `${page}: ${refs.length} icon URLs carry their file's version${stale.length ? ", stale: " + stale.map(m => m[1]).join(", ") : ""}`);
 }
 
-const manifest = JSON.parse(fs.readFileSync(path.join(root, "contributions/manifest.webmanifest"), "utf8"));
-const pngSize = f => { const b = fs.readFileSync(path.join(root, "contributions", f)); return b.readUInt32BE(16) + "x" + b.readUInt32BE(20); };
-const sha8 = f => crypto.createHash("sha1").update(fs.readFileSync(path.join(root, "contributions", f))).digest("hex").slice(0, 8);
+const manifest = JSON.parse(fs.readFileSync(path.join(root, "icons/home-screen/manifest.webmanifest"), "utf8"));
+const pngSize = f => { const b = fs.readFileSync(path.join(root, "icons/home-screen", f)); return b.readUInt32BE(16) + "x" + b.readUInt32BE(20); };
+const sha8 = f => crypto.createHash("sha1").update(fs.readFileSync(path.join(root, "icons/home-screen", f))).digest("hex").slice(0, 8);
 check(manifest.name === "NoneSilva's contributions" && manifest.short_name === "NoneSilva" && manifest.start_url === "/" && manifest.display === "standalone",
       "manifest: name, short name, start URL, standalone");
 const appIcons = manifest.icons.map(i => ({ ...i, file: i.src.split("?")[0], v: i.src.split("?v=")[1] }));
 check(["192x192 any", "512x512 any", "512x512 maskable"].every(k => appIcons.some(i => i.sizes + " " + i.purpose === k)) &&
       appIcons.every(i => pngSize(i.file) === i.sizes && i.v === sha8(i.file)),
       "manifest icons: 192 and 512, a maskable 512, sizes and versions match the files");
+check(fs.readdirSync(path.join(root, "contributions")).every(f => !/\.(png|svg|webmanifest)$/.test(f)),
+      "contributions/ holds only what the page runs on; site icons live in icons/");
 check(/<meta name="apple-mobile-web-app-title" content="NoneSilva">/.test(html) && pngSize("apple-touch-icon.png") === "180x180",
       "iPhone: home screen title NoneSilva, 180px icon");
 
