@@ -218,6 +218,13 @@ check(fs.readdirSync(path.join(root, "contributions")).every(f => !/\.(png|svg|w
 check(/<meta name="apple-mobile-web-app-title" content="NoneSilva">/.test(html) && pngSize("apple-touch-icon.png") === "180x180",
       "iPhone: home screen title NoneSilva, 180px icon");
 
+const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+const sections = [...readme.matchAll(/^## (\d+)\. (.+)$/gm)].map(m => [+m[1], m[2]]);
+const toc = [...readme.slice(0, readme.indexOf("\n## ")).matchAll(/^(\d+)\. \[(.+)\]\(#([a-z0-9-]+)\)$/gm)].map(m => [+m[1], m[2], m[3]]);
+check(sections.length > 0 && sections.every(([n], i) => n === i + 1) && toc.length === sections.length &&
+      toc.every(([n, t, a], i) => n === i + 1 && t === sections[i][1] && a === `${n}. ${t}`.toLowerCase().replace(/[^a-z0-9 -]/g, "").replace(/ /g, "-")),
+      `README: the contents at the top number the ${sections.length} numbered sections, in order, with working links`);
+
 async function shareChecks(){
   const flush = () => new Promise(r => setImmediate(r));
   const button = () => byId.links.children.find(n => n.attrs.id === "share");

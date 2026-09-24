@@ -2,7 +2,16 @@
 
 Source of <https://NoneSilva.github.io/>, built by GitHub Pages with Jekyll.
 
-## Public contributions
+1. [Public contributions](#1-public-contributions)
+2. [Share or Copy button](#2-share-or-copy-button)
+3. [Installing the site as a PWA](#3-installing-the-site-as-a-pwa)
+4. [How updates reach visitors](#4-how-updates-reach-visitors)
+5. [Updating the public contributions data](#5-updating-the-public-contributions-data)
+6. [Data](#6-data)
+7. [GitHub Developer Program](#7-github-developer-program)
+8. [Copyright](#8-copyright)
+
+## 1. Public contributions
 
 The home page (`index.html`) is the searchable public contributions of the
 account, as GitHub records them: static HTML, the styles and data in
@@ -12,12 +21,35 @@ account, as GitHub records them: static HTML, the styles and data in
 `contributions/skin.css` holds only colours, read from the stylesheets GitHub
 serves for its light and dark themes.
 
-## GitHub Developer Program
+## 2. Share or Copy button
 
-The generator is the integration registered for the account in the
-[GitHub Developer Program](https://docs.github.com/en/get-started/exploring-integrations/github-developer-program).
+The Share or Copy button asks the browser whether it has the system's share sheet. That's `navigator.share`, from the Web Share API.
 
-## Updating the public contributions data
+- **Phones, and computers on Windows, macOS or ChromeOS:** it does. The button shows as **Share** and opens the system's own share sheet.
+- **Ubuntu and other Linux, and Firefox on desktop:** it doesn't, because the browser doesn't turn that feature on there. The button becomes **Copy**, copies the link and confirms with a green message.
+
+The link carries the search, tab and dates in the address, so whoever opens it sees the same filtered list. And the Open Graph meta tags make LinkedIn and WhatsApp show the card with the icon and title.
+
+## 3. Installing the site as a PWA
+
+It has a web app manifest and home screen icons, but no service worker, so it needs a connection to load. The page has no install button; the browser offers it.
+
+- **Chrome and Edge on computers:** an install icon in the address bar, or the browser menu.
+- **Chrome and Samsung Internet on Android:** the browser menu. Chrome may also suggest it after a short visit.
+- **iPhone:** the browser's share menu, then Add to Home Screen.
+
+Once installed, it opens in its own window, without the address bar.
+
+## 4. How updates reach visitors
+
+GitHub Pages renders `index.html` and `404.html` with Jekyll, and both carry the published commit (`site.github.build_revision`):
+
+- The stylesheets are linked with the commit in their address, so every publication, data or layout, loads fresh styles, and a new page never meets old ones.
+- When the page comes back on screen, it asks for the published page and reloads if the commit changed, so an installed copy updates without being closed.
+
+Because Jekyll renders these pages, they must not contain `{{` or `{%` other than the build revision; the page test checks it.
+
+## 5. Updating the public contributions data
 
 To update it, run:
 
@@ -30,16 +62,7 @@ git push
 Requirements: OTP 27 or later (`json` module) and `gh` logged in as the
 account.
 
-## How updates reach visitors
-
-GitHub Pages renders `index.html` and `404.html` with Jekyll, and both carry the published commit (`site.github.build_revision`):
-
-- The stylesheets are linked with the commit in their address, so every publication, data or layout, loads fresh styles, and a new page never meets old ones.
-- When the page comes back on screen, it asks for the published page and reloads if the commit changed, so an installed copy updates without being closed.
-
-Because Jekyll renders these pages, they must not contain `{{` or `{%` other than the build revision; the page test checks it.
-
-## Data
+## 6. Data
 
 - Listed: issues, pull requests, reviews, security advisories crediting the
   account (from the advisories of every repository it contributed to), the
@@ -49,26 +72,12 @@ Because Jekyll renders these pages, they must not contain `{{` or `{%` other tha
 - Not collected: discussions; advisories in repositories with no other
   contribution from the account.
 
-## Share or Copy button
+## 7. GitHub Developer Program
 
-The Share or Copy button asks the browser whether it has the system's share sheet. That's `navigator.share`, from the Web Share API.
+The generator is the integration registered for the account in the
+[GitHub Developer Program](https://docs.github.com/en/get-started/exploring-integrations/github-developer-program).
 
-- **Phones, and computers on Windows, macOS or ChromeOS:** it does. The button shows as **Share** and opens the system's own share sheet.
-- **Ubuntu and other Linux, and Firefox on desktop:** it doesn't, because the browser doesn't turn that feature on there. The button becomes **Copy**, copies the link and confirms with a green message.
-
-The link carries the search, tab and dates in the address, so whoever opens it sees the same filtered list. And the Open Graph meta tags make LinkedIn and WhatsApp show the card with the icon and title.
-
-## Installing the site as a PWA
-
-It has a web app manifest and home screen icons, but no service worker, so it needs a connection to load. The page has no install button; the browser offers it.
-
-- **Chrome and Edge on computers:** an install icon in the address bar, or the browser menu.
-- **Chrome and Samsung Internet on Android:** the browser menu. Chrome may also suggest it after a short visit.
-- **iPhone:** the browser's share menu, then Add to Home Screen.
-
-Once installed, it opens in its own window, without the address bar.
-
-## Copyright
+## 8. Copyright
 
 Copyright (c) 2026 Guilherme Silva. All rights reserved.
 
