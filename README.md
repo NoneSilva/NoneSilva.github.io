@@ -3,8 +3,8 @@
 Source of <https://NoneSilva.github.io/>, built by GitHub Pages with Jekyll.
 
 1. [Public contributions](#1-public-contributions)
-2. [Share or Copy button](#2-share-or-copy-button)
-3. [Installing the site as a PWA](#3-installing-the-site-as-a-pwa)
+2. [Installing the site as a PWA](#2-installing-the-site-as-a-pwa)
+3. [Share or Copy button](#3-share-or-copy-button)
 4. [How updates reach visitors](#4-how-updates-reach-visitors)
 5. [Updating the public contributions data](#5-updating-the-public-contributions-data)
 6. [Data](#6-data)
@@ -21,16 +21,7 @@ account, as GitHub records them: static HTML, the styles and data in
 `contributions/skin.css` holds only colours, read from the stylesheets GitHub
 serves for its light and dark themes.
 
-## 2. Share or Copy button
-
-The Share or Copy button asks the browser whether it has the system's share sheet. That's `navigator.share`, from the Web Share API.
-
-- **Phones, and computers on Windows, macOS or ChromeOS:** it does. The button shows as **Share** and opens the system's own share sheet.
-- **Ubuntu and other Linux, and Firefox on desktop:** it doesn't, because the browser doesn't turn that feature on there. The button becomes **Copy**, copies the link and confirms with a green message.
-
-The link carries the search, tab and dates in the address, so whoever opens it sees the same filtered list. And the Open Graph meta tags make LinkedIn and WhatsApp show the card with the icon and title.
-
-## 3. Installing the site as a PWA
+## 2. Installing the site as a PWA
 
 It has a web app manifest and home screen icons, but no service worker, so it needs a connection to load. The page has no install button; the browser offers it.
 
@@ -39,6 +30,15 @@ It has a web app manifest and home screen icons, but no service worker, so it ne
 - **iPhone:** the browser's share menu, then Add to Home Screen.
 
 Once installed, it opens in its own window, without the address bar.
+
+## 3. Share or Copy button
+
+The Share or Copy button asks the browser whether it has the system's share sheet. That's `navigator.share`, from the Web Share API.
+
+- **Phones, and computers on Windows, macOS or ChromeOS:** it does. The button shows as **Share** and opens the system's own share sheet.
+- **Ubuntu and other Linux, and Firefox on desktop:** it doesn't, because the browser doesn't turn that feature on there. The button becomes **Copy**, copies the link and confirms with a green message.
+
+The link carries the search, tab and dates in the address, so whoever opens it sees the same filtered list. And the Open Graph meta tags make LinkedIn and WhatsApp show the card with the icon and title.
 
 ## 4. How updates reach visitors
 
