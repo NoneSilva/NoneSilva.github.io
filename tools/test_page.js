@@ -28,6 +28,10 @@ const doc = {
   createTextNode: t => new TextNode(t),
   getElementById: id => byId[id],
   documentElement: new Node("html"),
+  listeners: {}, visibilityState: "visible",
+  addEventListener(t, f){ (this.listeners[t] = this.listeners[t] || []).push(f); },
+  querySelector: sel => /contributions\.js/.test(sel)
+    ? { getAttribute: () => (fs.readFileSync(path.join(root, "index.html"), "utf8").match(/contributions\/contributions\.js\?v=\d+/) || [""])[0] } : null,
 };
 // Elements the page expects to exist in the HTML.
 for (const id of ["chips", "links", "q", "from", "to", "timeline", "login", "updated", "owner"]) {
@@ -36,17 +40,18 @@ for (const id of ["chips", "links", "q", "from", "to", "timeline", "login", "upd
 }
 byId.chips.querySelectorAll = () => byId.chips.children;
 
-function run(search, navigator = {}){
-  byId.timeline.children = []; byId.chips.children = []; byId.links.children = [];
+function run(search, navigator = {}, extra = {}){
+  byId.timeline.children = []; byId.chips.children = []; byId.links.children = []; doc.listeners = {};
   const ctx = {
     document: doc, console, navigator, setTimeout, clearTimeout,
     window: { matchMedia: () => ({ matches: false }) },
-    location: { search, hash: "", pathname: "/", href: "https://nonesilva.github.io/" + search },
+    location: { search, hash: "", pathname: "/", href: "https://nonesilva.github.io/" + search, reload: extra.reload || (() => {}) },
     history: { replaceState(){} },
     localStorage: { getItem: () => null, setItem(){} },
     URLSearchParams,
   };
   ctx.window.CONTRIBUTIONS = undefined;
+  ctx.window.fetch = extra.fetch;
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(path.join(root, "contributions/contributions.js"), "utf8"), ctx);
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
@@ -249,7 +254,32 @@ async function shareChecks(){
   check(button().className === "share tooltipped" && drawn(button()) === COPY, "copied from the keyboard, it is Copy again when the focus leaves");
 }
 
-shareChecks().then(() => {
+async function refreshChecks(){
+  const flush = () => new Promise(r => setImmediate(r));
+  const current = (html.match(/contributions\/contributions\.js\?v=\d+/) || [""])[0];
+  const back = async (served, { offline = false, hidden = false } = {}) => {
+    let reloaded = false, asked = null;
+    doc.visibilityState = hidden ? "hidden" : "visible";
+    run("", {}, { reload: () => { reloaded = true; },
+                  fetch: (url, opts) => { asked = [url, opts && opts.cache]; return offline ? Promise.reject(new Error("offline"))
+                                          : Promise.resolve({ text: () => Promise.resolve(served) }); } });
+    doc.listeners.visibilitychange[0]();
+    await flush(); await flush();
+    doc.visibilityState = "visible";
+    return { reloaded, asked };
+  };
+  const same = await back(`<script src="${current}"></script>`);
+  check(!same.reloaded && same.asked && same.asked[0] === "/" && same.asked[1] === "no-cache",
+        "back on screen: asks the server for the page, and keeps it when the data is the same");
+  const newer = await back(`<script src="contributions/contributions.js?v=1"></script>`);
+  check(newer.reloaded, "back on screen with newer published data: reloads");
+  const offline = await back("", { offline: true });
+  check(!offline.reloaded, "back on screen without a connection: nothing happens");
+  const hidden = await back(`<script src="contributions/contributions.js?v=1"></script>`, { hidden: true });
+  check(!hidden.asked && !hidden.reloaded, "leaving the screen: no request");
+}
+
+shareChecks().then(refreshChecks).then(() => {
   console.log(failures ? `\n${failures} check(s) failed` : "\nall checks passed");
   process.exit(failures ? 1 : 0);
 });
