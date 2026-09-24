@@ -118,7 +118,7 @@ check(tag("og:title") === "NoneSilva's contributions" && tag("og:title") === (ht
       `og:title is the page title: ${tag("og:title")}`);
 check(!!description && tag("og:description") === description && tag("og:image:alt") === description, "og:description and og:image:alt are the meta description");
 check(tag("og:type") === "website" && tag("twitter:card") === "summary", "og:type website, summary card");
-const img = /^https:\/\/nonesilva\.github\.io\/(contributions\/og-image\.png)$/.exec(tag("og:image") || "");
+const img = /^https:\/\/nonesilva\.github\.io\/(contributions\/og-image\.png)\?v=[0-9a-f]{8}$/.exec(tag("og:image") || "");
 const png = img && fs.existsSync(path.join(root, img[1])) ? fs.readFileSync(path.join(root, img[1])) : null;
 check(!!png && png.readUInt32BE(16) === +tag("og:image:width") && png.readUInt32BE(20) === +tag("og:image:height"),
       `og:image is an absolute URL to a file of the site, ${tag("og:image:width")}x${tag("og:image:height")} as declared`);
@@ -148,6 +148,15 @@ const css = fs.readFileSync(path.join(root, "contributions/structure.css"), "utf
 const underlined = (css.match(/[^{}]+(?=\{[^}]*text-decoration:underline)/g) || []).join(",");
 check(/\.profile-links a:hover/.test(underlined) && /\.share--sheet:hover/.test(underlined) && !/\.(theme|share)[:,]/.test(underlined),
       "what leads elsewhere underlines on hover (links, Share); Copy and the theme switch do not");
+
+// Icons and the preview image are versioned by content, so no cache keeps an old one.
+const crypto = require("crypto");
+for (const page of ["index.html", "404.html"]) {
+  const src = fs.readFileSync(path.join(root, page), "utf8");
+  const refs = [...src.matchAll(/(?:href|content)="(?:https:\/\/nonesilva\.github\.io\/|\/)?contributions\/([\w.-]+\.(?:svg|png))(?:\?v=([0-9a-f]+))?"/g)];
+  const stale = refs.filter(m => m[2] !== crypto.createHash("sha1").update(fs.readFileSync(path.join(root, "contributions", m[1]))).digest("hex").slice(0, 8));
+  check(refs.length >= 5 && stale.length === 0, `${page}: ${refs.length} icon URLs carry their file's version${stale.length ? ", stale: " + stale.map(m => m[1]).join(", ") : ""}`);
+}
 
 async function shareChecks(){
   const flush = () => new Promise(r => setImmediate(r));
