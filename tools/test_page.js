@@ -153,10 +153,22 @@ check(/\.profile-links a:hover/.test(underlined) && /\.share--sheet:hover/.test(
 const crypto = require("crypto");
 for (const page of ["index.html", "404.html"]) {
   const src = fs.readFileSync(path.join(root, page), "utf8");
-  const refs = [...src.matchAll(/(?:href|content)="(?:https:\/\/nonesilva\.github\.io\/|\/)?contributions\/([\w.-]+\.(?:svg|png))(?:\?v=([0-9a-f]+))?"/g)];
+  const refs = [...src.matchAll(/(?:href|content)="(?:https:\/\/nonesilva\.github\.io\/|\/)?contributions\/([\w.-]+\.(?:svg|png|webmanifest))(?:\?v=([0-9a-f]+))?"/g)];
   const stale = refs.filter(m => m[2] !== crypto.createHash("sha1").update(fs.readFileSync(path.join(root, "contributions", m[1]))).digest("hex").slice(0, 8));
   check(refs.length >= 5 && stale.length === 0, `${page}: ${refs.length} icon URLs carry their file's version${stale.length ? ", stale: " + stale.map(m => m[1]).join(", ") : ""}`);
 }
+
+const manifest = JSON.parse(fs.readFileSync(path.join(root, "contributions/manifest.webmanifest"), "utf8"));
+const pngSize = f => { const b = fs.readFileSync(path.join(root, "contributions", f)); return b.readUInt32BE(16) + "x" + b.readUInt32BE(20); };
+const sha8 = f => crypto.createHash("sha1").update(fs.readFileSync(path.join(root, "contributions", f))).digest("hex").slice(0, 8);
+check(manifest.name === "NoneSilva's contributions" && manifest.short_name === "NoneSilva" && manifest.start_url === "/" && manifest.display === "standalone",
+      "manifest: name, short name, start URL, standalone");
+const appIcons = manifest.icons.map(i => ({ ...i, file: i.src.split("?")[0], v: i.src.split("?v=")[1] }));
+check(["192x192 any", "512x512 any", "512x512 maskable"].every(k => appIcons.some(i => i.sizes + " " + i.purpose === k)) &&
+      appIcons.every(i => pngSize(i.file) === i.sizes && i.v === sha8(i.file)),
+      "manifest icons: 192 and 512, a maskable 512, sizes and versions match the files");
+check(/<meta name="apple-mobile-web-app-title" content="NoneSilva">/.test(html) && pngSize("apple-touch-icon.png") === "180x180",
+      "iPhone: home screen title NoneSilva, 180px icon");
 
 async function shareChecks(){
   const flush = () => new Promise(r => setImmediate(r));
