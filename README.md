@@ -4,12 +4,13 @@ Source of <https://NoneSilva.github.io/>, built by GitHub Pages with Jekyll.
 
 1. [Public contributions](#1-public-contributions)
 2. [Installing the site as a PWA](#2-installing-the-site-as-a-pwa)
-3. [Share or Copy button](#3-share-or-copy-button)
-4. [How updates reach visitors](#4-how-updates-reach-visitors)
-5. [Data coverage](#5-data-coverage)
-6. [Data refresh](#6-data-refresh)
-7. [GitHub Developer Program](#7-github-developer-program)
-8. [Copyright](#8-copyright)
+3. [Accessibility](#3-accessibility)
+4. [Share or Copy button](#4-share-or-copy-button)
+5. [How updates reach visitors](#5-how-updates-reach-visitors)
+6. [Data coverage](#6-data-coverage)
+7. [Data refresh](#7-data-refresh)
+8. [GitHub Developer Program](#8-github-developer-program)
+9. [Copyright](#9-copyright)
 
 ## 1. Public contributions
 
@@ -31,7 +32,25 @@ It has a web app manifest and home screen icons, but no service worker, so it ne
 
 Once installed, it opens in its own window, without the address bar.
 
-## 3. Share or Copy button
+## 3. Accessibility
+
+The page is tested against published standards, at every width from 320 to 1400px:
+
+- **WCAG 2.2** ([2.5.8 Target Size](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html), [1.4.10 Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html)) and the full WCAG 2.2 AA rule set through [axe-core](https://github.com/dequelabs/axe-core).
+- **Material Design 3**: [48dp touch targets](https://m3.material.io/foundations/layout/understanding-layout/density) and [16dp margins in compact layouts](https://m3.material.io/foundations/layout/applying-layout/compact).
+- **Android**: [8dp between touch targets](https://support.google.com/accessibility/android/answer/7101858).
+- **Apple Human Interface Guidelines**: [44pt hit regions](https://developer.apple.com/design/human-interface-guidelines/buttons) and [consistent spacing](https://developer.apple.com/design/human-interface-guidelines/layout).
+
+The standards, each with its source, are in `tools/a11y/standards.json`; the tests run on Playwright:
+
+```sh
+npm install
+npx playwright test
+```
+
+They read the site as GitHub Pages builds it, in `_site`.
+
+## 4. Share or Copy button
 
 The Share or Copy button asks the browser whether it has the system's share sheet. That's `navigator.share`, from the Web Share API.
 
@@ -40,7 +59,7 @@ The Share or Copy button asks the browser whether it has the system's share shee
 
 The link carries the search, tab and dates in the address, so whoever opens it sees the same filtered list. And the Open Graph meta tags make LinkedIn and WhatsApp show the card with the icon and title.
 
-## 4. How updates reach visitors
+## 5. How updates reach visitors
 
 GitHub Pages renders `index.html` and `404.html` with Jekyll, and both carry the published commit (`site.github.build_revision`):
 
@@ -49,7 +68,7 @@ GitHub Pages renders `index.html` and `404.html` with Jekyll, and both carry the
 
 Because Jekyll renders these pages, they must not contain `{{` or `{%` other than the build revision; the page test checks it.
 
-## 5. Data coverage
+## 6. Data coverage
 
 - Listed: issues, pull requests, reviews, security advisories crediting the
   account (from the advisories of every repository it contributed to), the
@@ -59,7 +78,7 @@ Because Jekyll renders these pages, they must not contain `{{` or `{%` other tha
 - Not collected: discussions; advisories in repositories with no other
   contribution from the account.
 
-## 6. Data refresh
+## 7. Data refresh
 
 To refresh the data:
 
@@ -72,12 +91,12 @@ git push
 Requirements: OTP 27 or later (`json` module) and `gh` logged in as the
 account.
 
-## 7. GitHub Developer Program
+## 8. GitHub Developer Program
 
 The generator is the integration registered for the account in the
 [GitHub Developer Program](https://docs.github.com/en/get-started/exploring-integrations/github-developer-program).
 
-## 8. Copyright
+## 9. Copyright
 
 Copyright (c) 2026 Guilherme Silva. All rights reserved.
 
