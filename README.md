@@ -6,7 +6,7 @@ Source of <https://NoneSilva.github.io/>, built by GitHub Pages with Jekyll.
 2. [Installing the site as a PWA](#2-installing-the-site-as-a-pwa)
 3. [Share or Copy button](#3-share-or-copy-button)
 4. [How updates reach visitors](#4-how-updates-reach-visitors)
-5. [Data](#5-data)
+5. [Data coverage](#5-data-coverage)
 6. [Data refresh](#6-data-refresh)
 7. [GitHub Developer Program](#7-github-developer-program)
 8. [Copyright](#8-copyright)
@@ -49,7 +49,7 @@ GitHub Pages renders `index.html` and `404.html` with Jekyll, and both carry the
 
 Because Jekyll renders these pages, they must not contain `{{` or `{%` other than the build revision; the page test checks it.
 
-## 5. Data
+## 5. Data coverage
 
 - Listed: issues, pull requests, reviews, security advisories crediting the
   account (from the advisories of every repository it contributed to), the
