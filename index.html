@@ -175,8 +175,9 @@
   // Share where the system has a share sheet, Copy elsewhere; each does only that.
   var canShare = typeof navigator.share === "function";
   var shareName = canShare ? "Share" : "Copy";
-  var shareBtn = el("button", {type:"button", id:"share", "aria-label": canShare ? "Share" : "Copy link"}), shareTimer;
+  var shareBtn = el("button", {type:"button", id:"share", "aria-label": canShare ? "Share" : "Copy link"}), shareCopied = false;
   function paintShare(copied){
+    shareCopied = copied;
     shareBtn.textContent = "";
     shareBtn.setAttribute("class", copied ? "share tooltipped share--copied" : "share tooltipped");
     shareBtn.appendChild(icon(copied ? "check" : canShare ? "share" : "copy"));
@@ -185,12 +186,12 @@
   }
   function copyLink(url){
     if (!navigator.clipboard) return;
-    navigator.clipboard.writeText(url).then(function(){
-      paintShare(true);
-      clearTimeout(shareTimer);
-      shareTimer = setTimeout(function(){ paintShare(false); }, 2000);
-    }, function(){});
+    navigator.clipboard.writeText(url).then(function(){ paintShare(true); }, function(){});
   }
+  // "Copied" lasts until the pointer or the focus leaves the button, so it can be read.
+  function uncopy(){ if (shareCopied) paintShare(false); }
+  shareBtn.addEventListener("mouseleave", uncopy);
+  shareBtn.addEventListener("blur", uncopy);
   shareBtn.addEventListener("click", function(){
     var url = location.href;
     if (canShare) navigator.share({title: document.title, url: url}).catch(function(){});

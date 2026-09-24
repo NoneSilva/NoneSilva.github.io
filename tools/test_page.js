@@ -180,7 +180,13 @@ async function shareChecks(){
   check(b.className === "share tooltipped share--copied" && drawn(b) === CHECK && label(b) === "Copy" && tip(b).length === 1 && tipOf(b) === "Page link copied with any active filters" && tip(b)[0].attrs.role === "status",
         "the button confirms: check, label unchanged, page link copied, announced as a status");
   await new Promise(r => setTimeout(r, 2100));
-  check(tipOf(button()) === "Copy page link with any active filters" && button().className === "share tooltipped" && drawn(button()) === COPY, "after two seconds it is Copy again");
+  check(button().className === "share tooltipped share--copied", "while the pointer stays, it stays copied");
+  button().listeners.mouseleave[0]();
+  check(tipOf(button()) === "Copy page link with any active filters" && button().className === "share tooltipped" && drawn(button()) === COPY, "when the pointer leaves, it is Copy again");
+  button().listeners.click[0]();
+  await flush();
+  button().listeners.blur[0]();
+  check(button().className === "share tooltipped" && drawn(button()) === COPY, "copied from the keyboard, it is Copy again when the focus leaves");
 }
 
 shareChecks().then(() => {
