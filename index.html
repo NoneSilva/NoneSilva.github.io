@@ -142,7 +142,12 @@
   }
   document.getElementById("updated").textContent = "Updated to " + (meta.generated ? utcStamp(meta.generated) : "");
   var root = document.documentElement;
-  var themeBtn = el("button", {type:"button", class:"theme", id:"theme", "aria-label":"Switch theme", title:"Switch theme"});
+  function tip(anchor, id, text, role){
+    anchor.setAttribute("aria-describedby", id);
+    anchor.appendChild(el("span", role ? {class:"tooltip", id:id, role:role, text:text} : {class:"tooltip", id:id, "aria-hidden":"true", text:text}));
+    return anchor;
+  }
+  var themeBtn = el("button", {type:"button", class:"theme tooltipped", id:"theme", "aria-label":"Switch theme"});
   function currentTheme(){
     var t = root.getAttribute("data-theme");
     if (t === "dark" || t === "light") return t;
@@ -153,6 +158,7 @@
     themeBtn.textContent = "";
     themeBtn.appendChild(icon(next === "light" ? "sun" : "moon"));
     themeBtn.appendChild(document.createTextNode(next === "light" ? "Light" : "Dark"));
+    tip(themeBtn, "tip-theme", "Switch to " + next + " theme");
   }
   try { var saved = localStorage.getItem("theme"); if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved); } catch (e) {}
   themeBtn.addEventListener("click", function(){
@@ -169,13 +175,13 @@
   // Share where the system has a share sheet, Copy elsewhere; each does only that.
   var canShare = typeof navigator.share === "function";
   var shareName = canShare ? "Share" : "Copy";
-  var shareBtn = el("button", {type:"button", id:"share", "aria-label": canShare ? "Share" : "Copy link", title: canShare ? "Share" : "Copy link"}), shareTimer;
+  var shareBtn = el("button", {type:"button", id:"share", "aria-label": canShare ? "Share" : "Copy link"}), shareTimer;
   function paintShare(copied){
     shareBtn.textContent = "";
-    shareBtn.setAttribute("class", copied ? "share share--copied" : "share");
+    shareBtn.setAttribute("class", copied ? "share tooltipped share--copied" : "share tooltipped");
     shareBtn.appendChild(icon(copied ? "check" : canShare ? "share" : "copy"));
     shareBtn.appendChild(document.createTextNode(shareName));
-    if (copied) shareBtn.appendChild(el("span", {class:"tooltip", role:"status", text:"Copied!"}));
+    tip(shareBtn, "tip-share", copied ? "Copied!" : canShare ? "Share" : "Copy link", "status");
   }
   function copyLink(url){
     if (!navigator.clipboard) return;
@@ -192,8 +198,8 @@
   });
   links.appendChild(shareBtn);
   paintShare(false);
-  if (L.github) links.appendChild(el("a", ext({href: L.github}), [icon("github"), document.createTextNode("GitHub")]));
-  if (L.linkedin) links.appendChild(el("a", ext({href: L.linkedin}), [icon("linkedin"), document.createTextNode("LinkedIn")]));
+  if (L.github) links.appendChild(tip(el("a", ext({href: L.github, class:"tooltipped"}), [icon("github"), document.createTextNode("GitHub")]), "tip-github", "Open GitHub profile in a new tab"));
+  if (L.linkedin) links.appendChild(tip(el("a", ext({href: L.linkedin, class:"tooltipped"}), [icon("linkedin"), document.createTextNode("LinkedIn")]), "tip-linkedin", "Open LinkedIn profile in a new tab"));
   links.appendChild(themeBtn);
   paintTheme();
 

@@ -62,7 +62,6 @@ ol{padding:0;list-style:none}
 /* 4.2 Profile links, right end of the tab bar. */
 .profile-links{margin-left:auto;display:flex;flex-wrap:wrap;gap:var(--space-4);align-self:center;padding-right:var(--space-4)}
 .profile-links a,.theme,.share{text-decoration:none;display:inline-flex;align-items:center;gap:var(--space-1);line-height:20px;padding:0;border:0;background:none;cursor:pointer}
-.share{position:relative}
 
 /* 4.3 Toolbar: title, search, date range. */
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2)}
@@ -102,8 +101,9 @@ ol{padding:0;list-style:none}
 .signoff::before,.signoff::after{content:"";flex:1;border-top-width:1px;border-top-style:solid}
 .updated{font-variant-numeric:tabular-nums}
 
-/* 4.7 Tooltip, as Primer's. */
-.tooltip{position:absolute;top:calc(100% + var(--space-1));left:50%;transform:translateX(-50%);padding:var(--space-1) var(--space-2);border-radius:var(--radius);font-size:var(--text-small);line-height:20px;white-space:nowrap;pointer-events:none;z-index:1}
+/* 4.7 Tooltip, as Primer's, below its anchor with right edges aligned. */
+.tooltipped{position:relative}
+.tooltip{display:none;position:absolute;top:calc(100% + var(--space-1));right:0;padding:var(--space-1) var(--space-2);border-radius:var(--radius);font-size:var(--text-small);line-height:20px;white-space:nowrap;pointer-events:none;z-index:1}
 @media (prefers-reduced-motion:no-preference){.tooltip{animation:tooltip-appear .1s ease-in}}
 @keyframes tooltip-appear{from{opacity:0}to{opacity:1}}
 
@@ -113,6 +113,7 @@ ol{padding:0;list-style:none}
 .entry.commits .repo:hover{text-decoration:none}
 .entry:target{outline-width:1px;outline-style:solid}
 .entry:hover .anchor,.entry:target .anchor,.anchor:focus-visible{opacity:1}
+.tooltipped:hover>.tooltip,.tooltipped:focus-visible>.tooltip,.share--copied>.tooltip{display:block}
 
 /* 6. Responsive. Below Primer's lg (1012px), where the nav with its
    labelled profile links and the toolbar no longer fit one row each, the

@@ -131,6 +131,19 @@ for (const page of ["index.html", "404.html"]) {
         `${page}: no translation offer (translate="no", google notranslate meta in the head)`);
 }
 
+const label = n => n.children.filter(c => c.tag === "#text").map(c => c.text).join("");
+const tipOf = n => n.find(c => c.className === "tooltip").map(c => c.textContent)[0];
+run("");
+const [shareItem, githubItem, linkedinItem, themeItem] = byId.links.children;
+check(tipOf(shareItem) === "Copy link" && tipOf(githubItem) === "Open GitHub profile in a new tab" && tipOf(linkedinItem) === "Open LinkedIn profile in a new tab",
+      "hover tooltips: Copy link, GitHub and LinkedIn open in a new tab");
+check(tipOf(themeItem) === "Switch to dark theme", `theme tooltip names the next theme: ${tipOf(themeItem)}`);
+themeItem.listeners.click[0]();
+check(tipOf(themeItem) === "Switch to light theme", `and follows the switch: ${tipOf(themeItem)}`);
+delete doc.documentElement.attrs["data-theme"];
+check(byId.links.children.every(n => !("title" in n.attrs) && /\btooltipped\b/.test(n.className) && n.attrs["aria-describedby"] === n.find(c => c.className === "tooltip")[0].attrs.id),
+      "each item is described by its own tooltip, no native title");
+
 async function shareChecks(){
   const flush = () => new Promise(r => setImmediate(r));
   const button = () => byId.links.children.find(n => n.attrs.id === "share");
@@ -140,8 +153,8 @@ async function shareChecks(){
   let shared = null, copied = null;
   run("?type=pr&q=elixir", { share: data => { shared = data; return Promise.resolve(); },
                              clipboard: { writeText: t => { copied = t; return Promise.resolve(); } } });
-  const order = byId.links.children.map(n => n.attrs.id || n.textContent);
-  check(order[0] === "share" && order[order.length - 1] === "theme" && button().textContent === "Share" && drawn(button()) === SHARE && tip(button()).length === 0,
+  const order = byId.links.children.map(n => n.attrs.id || label(n));
+  check(order[0] === "share" && order[order.length - 1] === "theme" && label(button()) === "Share" && drawn(button()) === SHARE && tipOf(button()) === "Share",
         `with a share sheet the button is Share, first in the group: ${order.join(", ")}`);
   button().listeners.click[0]();
   await flush();
@@ -154,20 +167,20 @@ async function shareChecks(){
                               clipboard: { writeText: t => { copied = t; return Promise.resolve(); } } });
     button().listeners.click[0]();
     await flush();
-    check(copied === null && tip(button()).length === 0, `Share only shares: ${name} copies nothing`);
+    check(copied === null && tipOf(button()) === "Share", `Share only shares: ${name} copies nothing`);
   }
 
   run("?type=review", { clipboard: { writeText: t => { copied = t; return Promise.resolve(); } } });
-  check(button().textContent === "Copy" && drawn(button()) === COPY && button().attrs["aria-label"] === "Copy link",
+  check(label(button()) === "Copy" && drawn(button()) === COPY && button().attrs["aria-label"] === "Copy link",
         "without a share sheet the button is Copy: copy icon, named Copy link");
   button().listeners.click[0]();
   await flush();
   const b = button();
   check(copied === "https://nonesilva.github.io/?type=review", `without a share sheet the address is copied: ${copied}`);
-  check(b.className === "share share--copied" && drawn(b) === CHECK && b.textContent === "CopyCopied!" && tip(b).length === 1 && tip(b)[0].attrs.role === "status",
+  check(b.className === "share tooltipped share--copied" && drawn(b) === CHECK && label(b) === "Copy" && tip(b).length === 1 && tipOf(b) === "Copied!" && tip(b)[0].attrs.role === "status",
         "the button confirms: check, label unchanged, \"Copied!\" tooltip announced as a status");
   await new Promise(r => setTimeout(r, 2100));
-  check(tip(button()).length === 0 && button().className === "share" && drawn(button()) === COPY, "after two seconds it is Copy again");
+  check(tipOf(button()) === "Copy link" && button().className === "share tooltipped" && drawn(button()) === COPY, "after two seconds it is Copy again");
 }
 
 shareChecks().then(() => {
