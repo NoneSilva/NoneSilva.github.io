@@ -5,8 +5,8 @@ Source of <https://NoneSilva.github.io/>, built by GitHub Pages with Jekyll.
 1. [Public contributions](#1-public-contributions)
 2. [Installing the site as a PWA](#2-installing-the-site-as-a-pwa)
 3. [Share or Copy button](#3-share-or-copy-button)
-4. [Data](#4-data)
-5. [How updates reach visitors](#5-how-updates-reach-visitors)
+4. [How updates reach visitors](#4-how-updates-reach-visitors)
+5. [Data](#5-data)
 6. [Data refresh](#6-data-refresh)
 7. [GitHub Developer Program](#7-github-developer-program)
 8. [Copyright](#8-copyright)
@@ -40,7 +40,16 @@ The Share or Copy button asks the browser whether it has the system's share shee
 
 The link carries the search, tab and dates in the address, so whoever opens it sees the same filtered list. And the Open Graph meta tags make LinkedIn and WhatsApp show the card with the icon and title.
 
-## 4. Data
+## 4. How updates reach visitors
+
+GitHub Pages renders `index.html` and `404.html` with Jekyll, and both carry the published commit (`site.github.build_revision`):
+
+- The stylesheets are linked with the commit in their address, so every publication, data or layout, loads fresh styles, and a new page never meets old ones.
+- When the page comes back on screen, it asks for the published page and reloads if the commit changed, so an installed copy updates without being closed.
+
+Because Jekyll renders these pages, they must not contain `{{` or `{%` other than the build revision; the page test checks it.
+
+## 5. Data
 
 - Listed: issues, pull requests, reviews, security advisories crediting the
   account (from the advisories of every repository it contributed to), the
@@ -49,15 +58,6 @@ The link carries the search, tab and dates in the address, so whoever opens it s
 - Counted but never listed: private repositories (`meta.restricted`).
 - Not collected: discussions; advisories in repositories with no other
   contribution from the account.
-
-## 5. How updates reach visitors
-
-GitHub Pages renders `index.html` and `404.html` with Jekyll, and both carry the published commit (`site.github.build_revision`):
-
-- The stylesheets are linked with the commit in their address, so every publication, data or layout, loads fresh styles, and a new page never meets old ones.
-- When the page comes back on screen, it asks for the published page and reloads if the commit changed, so an installed copy updates without being closed.
-
-Because Jekyll renders these pages, they must not contain `{{` or `{%` other than the build revision; the page test checks it.
 
 ## 6. Data refresh
 
