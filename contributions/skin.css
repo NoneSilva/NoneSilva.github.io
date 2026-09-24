@@ -93,6 +93,7 @@ svg{fill:currentColor}
 .tab[aria-pressed="true"] svg{color:var(--fg)}
 .profile-links a:hover,.theme:hover,.share:hover,.repo:hover{color:var(--fg)}
 .share--copied svg{color:var(--success-fg)}
+.share--copied .tooltip{background:var(--success-emphasis)}
 .entry.commits .repo:hover{color:inherit}
 .item:hover{color:var(--accent)}
 .entry:hover,.entry:target{background:var(--canvas-muted)}
