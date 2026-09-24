@@ -16,6 +16,7 @@
   --fg:#1f2328;                  /* fgColor-default          */
   --fg-muted:#59636e;            /* fgColor-muted            */
   --fg-on-emphasis:#ffffff;      /* fgColor-onEmphasis       */
+  --emphasis:#25292e;            /* bgColor-emphasis         */
   --border:#d1d9e0;              /* borderColor-default      */
   --border-muted:#d1d9e0b3;      /* borderColor-muted        */
   --accent:#0969da;              /* fgColor-accent           */
@@ -31,7 +32,7 @@
   :root:not([data-theme="light"]){
     color-scheme:dark;
     --canvas:#0d1117; --canvas-muted:#151b23;
-    --fg:#f0f6fc; --fg-muted:#9198a1; --fg-on-emphasis:#ffffff;
+    --fg:#f0f6fc; --fg-muted:#9198a1; --fg-on-emphasis:#ffffff; --emphasis:#3d444d;
     --border:#3d444d; --border-muted:#3d444db3;
     --accent:#4493f8;
     --success-fg:#3fb950;   --success-emphasis:#238636;
@@ -46,7 +47,7 @@
 :root[data-theme="dark"]{
   color-scheme:dark;
   --canvas:#0d1117; --canvas-muted:#151b23;
-  --fg:#f0f6fc; --fg-muted:#9198a1; --fg-on-emphasis:#ffffff;
+  --fg:#f0f6fc; --fg-muted:#9198a1; --fg-on-emphasis:#ffffff; --emphasis:#3d444d;
   --border:#3d444d; --border-muted:#3d444db3;
   --accent:#4493f8;
   --success-fg:#3fb950;   --success-emphasis:#238636;
@@ -72,7 +73,7 @@ svg{fill:currentColor}
 .tabs{border-bottom-color:var(--border-muted)}
 .tab{color:var(--fg);border-bottom-color:transparent}
 .tab svg{color:var(--fg-muted)}
-.profile-links a,.theme{color:var(--fg-muted)}
+.profile-links a,.theme,.share{color:var(--fg-muted)}
 .input{background:var(--canvas);border-color:var(--border);color:var(--fg)}
 .input::placeholder{color:var(--fg-muted)}
 .date-range{color:var(--fg-muted)}
@@ -84,12 +85,15 @@ svg{fill:currentColor}
 .status{background:var(--neutral-emphasis);color:var(--fg-on-emphasis)}
 .signoff{color:var(--fg-muted)}
 .signoff::before,.signoff::after{border-top-color:var(--border-muted)}
+.tooltip{background:var(--emphasis);color:var(--fg-on-emphasis)}
 
 /* 5. States */
 .tab:hover{border-bottom-color:var(--border)}
 .tab[aria-pressed="true"]{border-bottom-color:var(--tab-active)}
 .tab[aria-pressed="true"] svg{color:var(--fg)}
-.profile-links a:hover,.theme:hover,.repo:hover{color:var(--fg)}
+.profile-links a:hover,.theme:hover,.share:hover,.repo:hover{color:var(--fg)}
+/* A copied link confirms with the success colour, as GitHub's copy buttons. */
+.share--copied svg{color:var(--success-fg)}
 .entry.commits .repo:hover{color:inherit}
 .item:hover{color:var(--accent)}
 .entry:hover,.entry:target{background:var(--canvas-muted)}

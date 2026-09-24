@@ -61,7 +61,9 @@ ol{padding:0;list-style:none}
 
 /* 4.2 Profile links, right end of the tab bar. */
 .profile-links{margin-left:auto;display:flex;flex-wrap:wrap;gap:var(--space-4);align-self:center}
-.profile-links a,.theme{text-decoration:none;display:inline-flex;align-items:center;gap:var(--space-1);line-height:20px;padding:0;border:0;background:none;cursor:pointer}
+.profile-links a,.theme,.share{text-decoration:none;display:inline-flex;align-items:center;gap:var(--space-1);line-height:20px;padding:0;border:0;background:none;cursor:pointer}
+/* Share anchors its "Copied!" tooltip (4.7). */
+.share{position:relative}
 
 /* 4.3 Toolbar: title, search, date range. */
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2)}
@@ -101,9 +103,16 @@ ol{padding:0;list-style:none}
 .signoff::before,.signoff::after{content:"";flex:1;border-top-width:1px;border-top-style:solid}
 .updated{font-variant-numeric:tabular-nums}
 
+/* 4.7 Tooltip, as Primer's: 12px text, 4px by 8px padding, 6px radius, 4px
+   below its anchor, centred, out of the flow; fades in over 0.1s unless the
+   reader asked for less motion. */
+.tooltip{position:absolute;top:calc(100% + var(--space-1));left:50%;transform:translateX(-50%);padding:var(--space-1) var(--space-2);border-radius:var(--radius);font-size:var(--text-small);line-height:20px;white-space:nowrap;pointer-events:none;z-index:1}
+@media (prefers-reduced-motion:no-preference){.tooltip{animation:tooltip-appear .1s ease-in}}
+@keyframes tooltip-appear{from{opacity:0}to{opacity:1}}
+
 /* 5. States (shape only; colours in skin.css) */
 .tab[aria-pressed="true"]{font-weight:600}
-.profile-links a:hover,.theme:hover,.repo:hover,.item:hover{text-decoration:underline}
+.profile-links a:hover,.theme:hover,.share:hover,.repo:hover,.item:hover{text-decoration:underline}
 .entry.commits .repo:hover{text-decoration:none}
 .entry:target{outline-width:1px;outline-style:solid}
 .entry:hover .anchor,.entry:target .anchor,.anchor:focus-visible{opacity:1}
@@ -124,7 +133,7 @@ ol{padding:0;list-style:none}
   .tabs-list{display:contents}
   .tab{height:var(--control-h);padding-inline:0;gap:var(--space-1)}
   .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:0}
-  .profile-links a,.theme{width:calc(var(--icon) + var(--space-2));height:var(--control-h);justify-content:flex-end;gap:0;font-size:0}
+  .profile-links a,.theme,.share{width:calc(var(--icon) + var(--space-2));height:var(--control-h);justify-content:flex-end;gap:0;font-size:0}
   /* 6.2 Toolbar: title centred on its own row (breaking, if it must,
      before the name), then search, then each date on its own 32px row,
      label beside a field that takes the rest. */
