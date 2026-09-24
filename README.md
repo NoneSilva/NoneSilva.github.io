@@ -40,6 +40,15 @@ account.
 - Not collected: discussions; advisories in repositories with no other
   contribution from the account.
 
+## Share or Copy button
+
+The Share or Copy button asks the browser whether it has the system's share sheet. That's `navigator.share`, from the Web Share API.
+
+- **Phones, and computers on Windows, macOS or ChromeOS:** it does. The button shows as **Share** and opens the system's own share sheet.
+- **Ubuntu and other Linux, and Firefox on desktop:** it doesn't, because the browser doesn't turn that feature on there. The button becomes **Copy**, copies the link and confirms with a green message.
+
+The link carries the search, tab and dates in the address, so whoever opens it sees the same filtered list. And the Open Graph meta tags make LinkedIn and WhatsApp show the card with the icon and title.
+
 ## Copyright
 
 Copyright (c) 2026 Guilherme Silva. All rights reserved.
