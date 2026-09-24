@@ -135,8 +135,8 @@ const label = n => n.children.filter(c => c.tag === "#text").map(c => c.text).jo
 const tipOf = n => n.find(c => c.className === "tooltip").map(c => c.textContent)[0];
 run("");
 const [shareItem, githubItem, linkedinItem, themeItem] = byId.links.children;
-check(tipOf(shareItem) === "Copy link" && tipOf(githubItem) === "Open GitHub profile in a new tab" && tipOf(linkedinItem) === "Open LinkedIn profile in a new tab",
-      "hover tooltips: Copy link, GitHub and LinkedIn open in a new tab");
+check(tipOf(shareItem) === "Copy page link with any active filters" && tipOf(githubItem) === "Open GitHub profile in a new tab" && tipOf(linkedinItem) === "Open LinkedIn profile in a new tab",
+      "hover tooltips: copy the page link, open GitHub and LinkedIn in a new tab");
 check(tipOf(themeItem) === "Switch to dark theme", `theme tooltip names the next theme: ${tipOf(themeItem)}`);
 themeItem.listeners.click[0]();
 check(tipOf(themeItem) === "Switch to light theme", `and follows the switch: ${tipOf(themeItem)}`);
@@ -154,7 +154,7 @@ async function shareChecks(){
   run("?type=pr&q=elixir", { share: data => { shared = data; return Promise.resolve(); },
                              clipboard: { writeText: t => { copied = t; return Promise.resolve(); } } });
   const order = byId.links.children.map(n => n.attrs.id || label(n));
-  check(order[0] === "share" && order[order.length - 1] === "theme" && label(button()) === "Share" && drawn(button()) === SHARE && tipOf(button()) === "Share",
+  check(order[0] === "share" && order[order.length - 1] === "theme" && label(button()) === "Share" && drawn(button()) === SHARE && tipOf(button()) === "Share page link with any active filters",
         `with a share sheet the button is Share, first in the group: ${order.join(", ")}`);
   button().listeners.click[0]();
   await flush();
@@ -167,7 +167,7 @@ async function shareChecks(){
                               clipboard: { writeText: t => { copied = t; return Promise.resolve(); } } });
     button().listeners.click[0]();
     await flush();
-    check(copied === null && tipOf(button()) === "Share", `Share only shares: ${name} copies nothing`);
+    check(copied === null && tipOf(button()) === "Share page link with any active filters", `Share only shares: ${name} copies nothing`);
   }
 
   run("?type=review", { clipboard: { writeText: t => { copied = t; return Promise.resolve(); } } });
@@ -177,10 +177,10 @@ async function shareChecks(){
   await flush();
   const b = button();
   check(copied === "https://nonesilva.github.io/?type=review", `without a share sheet the address is copied: ${copied}`);
-  check(b.className === "share tooltipped share--copied" && drawn(b) === CHECK && label(b) === "Copy" && tip(b).length === 1 && tipOf(b) === "Copied!" && tip(b)[0].attrs.role === "status",
-        "the button confirms: check, label unchanged, \"Copied!\" tooltip announced as a status");
+  check(b.className === "share tooltipped share--copied" && drawn(b) === CHECK && label(b) === "Copy" && tip(b).length === 1 && tipOf(b) === "Page link copied with any active filters" && tip(b)[0].attrs.role === "status",
+        "the button confirms: check, label unchanged, page link copied, announced as a status");
   await new Promise(r => setTimeout(r, 2100));
-  check(tipOf(button()) === "Copy link" && button().className === "share tooltipped" && drawn(button()) === COPY, "after two seconds it is Copy again");
+  check(tipOf(button()) === "Copy page link with any active filters" && button().className === "share tooltipped" && drawn(button()) === COPY, "after two seconds it is Copy again");
 }
 
 shareChecks().then(() => {

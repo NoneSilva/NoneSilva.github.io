@@ -181,7 +181,7 @@
     shareBtn.setAttribute("class", copied ? "share tooltipped share--copied" : "share tooltipped");
     shareBtn.appendChild(icon(copied ? "check" : canShare ? "share" : "copy"));
     shareBtn.appendChild(document.createTextNode(shareName));
-    tip(shareBtn, "tip-share", copied ? "Copied!" : canShare ? "Share" : "Copy link", "status");
+    tip(shareBtn, "tip-share", copied ? "Page link copied with any active filters" : canShare ? "Share page link with any active filters" : "Copy page link with any active filters", "status");
   }
   function copyLink(url){
     if (!navigator.clipboard) return;
