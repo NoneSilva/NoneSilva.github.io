@@ -127,6 +127,16 @@ check(!!png && png.readUInt32BE(16) === +tag("og:image:width") && png.readUInt32
 // No og:url: it would send a shared link to the bare page, without its view.
 check(tag("og:url") === undefined, "no og:url");
 
+// No translation offer, on every page of the site: Chrome looks for the
+// google/notranslate meta among the head's children; translate="no" on
+// <html> is the standard for the other translators.
+for (const page of ["index.html", "404.html"]) {
+  const src = fs.readFileSync(path.join(root, page), "utf8");
+  const head = src.slice(src.indexOf("<head>"), src.indexOf("</head>"));
+  check(/<html lang="en" translate="no">/.test(src) && /\n<meta name="google" content="notranslate">\n/.test(head),
+        `${page}: no translation offer (translate="no", google notranslate meta in the head)`);
+}
+
 // Share: the button sits between the profile links and the theme switch and
 // shares the address with its view: through the system's share sheet when
 // there is one, otherwise by copying it, confirmed for two seconds.
