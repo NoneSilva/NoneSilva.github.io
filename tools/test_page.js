@@ -170,6 +170,35 @@ const appIcons = manifest.icons.map(i => ({ ...i, file: i.src.split("?")[0], v: 
 check(["192x192 any", "512x512 any", "512x512 maskable"].every(k => appIcons.some(i => i.sizes + " " + i.purpose === k)) &&
       appIcons.every(i => pngSize(i.file) === i.sizes && i.v === sha8(i.file)),
       "manifest icons: 192 and 512, a maskable 512, sizes and versions match the files");
+check(manifest.prefer_related_applications !== true, "manifest: no redirect to an app store");
+for (const page of ["index.html", "404.html"]) {
+  const src = fs.readFileSync(path.join(root, page), "utf8");
+  check(/<link rel="manifest" href="\/?icons\/home-screen\/manifest\.webmanifest\?v=[0-9a-f]{8}">/.test(src), `${page}: links the manifest`);
+}
+// Pixels of a PNG (8-bit RGB or RGBA, not interlaced), to measure where the drawing sits.
+function pngPixels(file){
+  const zlib = require("zlib"), b = fs.readFileSync(file);
+  const w = b.readUInt32BE(16), h = b.readUInt32BE(20), bpp = { 2: 3, 6: 4 }[b[25]];
+  const idat = []; for (let o = 8; o < b.length; o += 12 + b.readUInt32BE(o)) if (b.toString("ascii", o + 4, o + 8) === "IDAT") idat.push(b.slice(o + 8, o + 8 + b.readUInt32BE(o)));
+  const raw = zlib.inflateSync(Buffer.concat(idat)), stride = w * bpp, out = Buffer.alloc(h * stride);
+  for (let y = 0; y < h; y++) {
+    const f = raw[y * (stride + 1)], row = raw.slice(y * (stride + 1) + 1, (y + 1) * (stride + 1));
+    for (let x = 0; x < stride; x++) {
+      const a = x >= bpp ? out[y * stride + x - bpp] : 0, up = y ? out[(y - 1) * stride + x] : 0, ul = y && x >= bpp ? out[(y - 1) * stride + x - bpp] : 0;
+      const pa = Math.abs(up - ul), pb = Math.abs(a - ul), pc = Math.abs(a + up - 2 * ul);
+      out[y * stride + x] = (row[x] + [0, a, up, (a + up) >> 1, pa <= pb && pa <= pc ? a : pb <= pc ? up : ul][f]) & 255;
+    }
+  }
+  return { w, h, bpp, out };
+}
+for (const f of ["icons/home-screen/icon-maskable-512.png", "icons/home-screen/apple-touch-icon.png"]) {
+  const { w, h, bpp, out } = pngPixels(path.join(root, f)); let far = 0;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * bpp;
+    if (out[i] < 250 || out[i + 1] < 250 || out[i + 2] < 250) far = Math.max(far, Math.hypot(x + 0.5 - w / 2, y + 0.5 - h / 2) / w);
+  }
+  check(far > 0 && far <= 0.4, `${f}: drawing inside the safe circle (${(far * 100).toFixed(1)}% of the width from the centre, limit 40%)`);
+}
 check(fs.readdirSync(path.join(root, "contributions")).every(f => !/\.(png|svg|webmanifest)$/.test(f)),
       "contributions/ holds only what the page runs on; site icons live in icons/");
 check(/<meta name="apple-mobile-web-app-title" content="NoneSilva">/.test(html) && pngSize("apple-touch-icon.png") === "180x180",
