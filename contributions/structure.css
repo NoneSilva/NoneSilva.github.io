@@ -129,8 +129,12 @@ ol{padding:0;list-style:none}
      tight to label. The profile links weigh less: one row of their icons
      alone at the right, 8px apart as items of one group in Primer. Each
      icon sits at the right end of a 24px-wide, row-tall box, so the boxes
-     touch and a tap next to an icon lands on it. */
-  .tabs{display:grid;grid-template-columns:minmax(0,1fr) max-content;grid-auto-rows:var(--control-h);align-items:center;gap:0}
+     touch and a tap next to an icon lands on it. The whole nav sits 8px
+     inside the frame, as the tabs do on the desktop with their own padding:
+     the first tab's icon starts 8px in, the last column ends 8px in, and
+     the last profile icon keeps on its right the 8px its siblings keep
+     between them. Nothing touches the frame. */
+  .tabs{display:grid;grid-template-columns:minmax(0,1fr) max-content;grid-auto-rows:var(--control-h);align-items:center;gap:0;padding-inline:var(--space-2)}
   .tabs-list{display:contents}
   .tab{height:var(--control-h);padding-inline:0;gap:var(--space-1)}
   .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:0;padding-right:0}
