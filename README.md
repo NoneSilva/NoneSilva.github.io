@@ -30,6 +30,15 @@ git push
 Requirements: OTP 27 or later (`json` module) and `gh` logged in as the
 account.
 
+## How updates reach visitors
+
+GitHub Pages renders `index.html` and `404.html` with Jekyll, and both carry the published commit (`site.github.build_revision`):
+
+- The stylesheets are linked with the commit in their address, so every publication, data or layout, loads fresh styles, and a new page never meets old ones.
+- When the page comes back on screen, it asks for the published page and reloads if the commit changed, so an installed copy updates without being closed.
+
+Because Jekyll renders these pages, they must not contain `{{` or `{%` other than the build revision; the page test checks it.
+
 ## Data
 
 - Listed: issues, pull requests, reviews, security advisories crediting the
