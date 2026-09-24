@@ -59,8 +59,9 @@ ol{padding:0;list-style:none}
 .tab-text>span,.tab-text::after{grid-area:1/1}
 .tab-text::after{content:attr(data-text);font-weight:600;visibility:hidden}
 
-/* 4.2 Profile links, right end of the tab bar. */
-.profile-links{margin-left:auto;display:flex;flex-wrap:wrap;gap:var(--space-4);align-self:center}
+/* 4.2 Profile links, right end of the tab bar. The last one keeps the
+   group's own 16px after it, as every other item does. */
+.profile-links{margin-left:auto;display:flex;flex-wrap:wrap;gap:var(--space-4);align-self:center;padding-right:var(--space-4)}
 .profile-links a,.theme,.share{text-decoration:none;display:inline-flex;align-items:center;gap:var(--space-1);line-height:20px;padding:0;border:0;background:none;cursor:pointer}
 /* Share anchors its "Copied!" tooltip (4.7). */
 .share{position:relative}
@@ -132,7 +133,7 @@ ol{padding:0;list-style:none}
   .tabs{display:grid;grid-template-columns:minmax(0,1fr) max-content;grid-auto-rows:var(--control-h);align-items:center;gap:0}
   .tabs-list{display:contents}
   .tab{height:var(--control-h);padding-inline:0;gap:var(--space-1)}
-  .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:0}
+  .profile-links{grid-column:1/-1;margin-left:0;justify-content:flex-end;gap:0;padding-right:0}
   .profile-links a,.theme,.share{width:calc(var(--icon) + var(--space-2));height:var(--control-h);justify-content:flex-end;gap:0;font-size:0}
   /* 6.2 Toolbar: title centred on its own row (breaking, if it must,
      before the name), then search, then each date on its own 32px row,
