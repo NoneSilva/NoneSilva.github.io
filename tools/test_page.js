@@ -144,6 +144,11 @@ delete doc.documentElement.attrs["data-theme"];
 check(byId.links.children.every(n => !("title" in n.attrs) && /\btooltipped\b/.test(n.className) && n.attrs["aria-describedby"] === n.find(c => c.className === "tooltip")[0].attrs.id),
       "each item is described by its own tooltip, no native title");
 
+const css = fs.readFileSync(path.join(root, "contributions/structure.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+const underlined = (css.match(/[^{}]+(?=\{[^}]*text-decoration:underline)/g) || []).join(",");
+check(/\.profile-links a:hover/.test(underlined) && /\.share--sheet:hover/.test(underlined) && !/\.(theme|share)[:,]/.test(underlined),
+      "what leads elsewhere underlines on hover (links, Share); Copy and the theme switch do not");
+
 async function shareChecks(){
   const flush = () => new Promise(r => setImmediate(r));
   const button = () => byId.links.children.find(n => n.attrs.id === "share");
@@ -154,7 +159,7 @@ async function shareChecks(){
   run("?type=pr&q=elixir", { share: data => { shared = data; return Promise.resolve(); },
                              clipboard: { writeText: t => { copied = t; return Promise.resolve(); } } });
   const order = byId.links.children.map(n => n.attrs.id || label(n));
-  check(order[0] === "share" && order[order.length - 1] === "theme" && label(button()) === "Share" && drawn(button()) === SHARE && tipOf(button()) === "Share page link with any active filters",
+  check(order[0] === "share" && order[order.length - 1] === "theme" && label(button()) === "Share" && drawn(button()) === SHARE && tipOf(button()) === "Share page link with any active filters" && /\bshare--sheet\b/.test(button().className),
         `with a share sheet the button is Share, first in the group: ${order.join(", ")}`);
   button().listeners.click[0]();
   await flush();

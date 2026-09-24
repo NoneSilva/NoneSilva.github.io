@@ -179,7 +179,7 @@
   function paintShare(copied){
     shareCopied = copied;
     shareBtn.textContent = "";
-    shareBtn.setAttribute("class", copied ? "share tooltipped share--copied" : "share tooltipped");
+    shareBtn.setAttribute("class", (canShare ? "share share--sheet tooltipped" : "share tooltipped") + (copied ? " share--copied" : ""));
     shareBtn.appendChild(icon(copied ? "check" : canShare ? "share" : "copy"));
     shareBtn.appendChild(document.createTextNode(shareName));
     tip(shareBtn, "tip-share", copied ? "Page link copied with any active filters" : canShare ? "Share page link with any active filters" : "Copy page link with any active filters", "status");
