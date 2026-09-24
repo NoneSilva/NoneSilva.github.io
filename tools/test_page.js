@@ -163,7 +163,7 @@ async function shareChecks(){
   const button = () => byId.links.children.find(n => n.attrs.id === "share");
   const tip = b => b.find(n => n.className === "tooltip");
   const drawn = b => b.find(n => n.tag === "path")[0].attrs.d.slice(0, 12);
-  const SHARE = "M3.75 6.5a.2", COPY = "M0 6.75C0 5.", CHECK = "M13.78 4.22a";
+  const SHARE = "M15 3a3 3 0 ", COPY = "M0 6.75C0 5.", CHECK = "M13.78 4.22a";
   let shared = null, copied = null;
   run("?type=pr&q=elixir", { share: data => { shared = data; return Promise.resolve(); },
                              clipboard: { writeText: t => { copied = t; return Promise.resolve(); } } });
