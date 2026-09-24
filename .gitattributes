@@ -1,3 +1,0 @@
-contributions/contributions.js linguist-detectable
-playwright.config.mjs linguist-language=JavaScript
-tools/test_page.js linguist-language=JavaScript
