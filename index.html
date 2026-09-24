@@ -4,8 +4,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- No translation offer: Chrome reads this meta in the head; translate="no"
-     on <html> is the HTML standard other translators follow. -->
 <meta name="google" content="notranslate">
 <meta name="color-scheme" content="light dark">
 <title>NoneSilva's contributions</title>
@@ -15,8 +13,7 @@
 <link rel="icon" type="image/png" sizes="64x64" href="contributions/favicon-64.png">
 <link rel="apple-touch-icon" sizes="180x180" href="contributions/apple-touch-icon.png">
 <meta name="description" content="Public contributions of NoneSilva, as GitHub records them: issues, pull requests, reviews, commits and security advisories.">
-<!-- Link preview (Open Graph), as on a GitHub profile: a square image and a
-     summary card. No og:url, so a shared link keeps its search, tab and dates. -->
+<!-- No og:url: a shared link keeps its search, tab and dates. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="NoneSilva's contributions">
 <meta property="og:description" content="Public contributions of NoneSilva, as GitHub records them: issues, pull requests, reviews, commits and security advisories.">
@@ -169,13 +166,7 @@
   // rest of the site does for external links.
   var EXT = {target:"_blank", rel:"noopener"};
   function ext(attrs){ attrs.target = EXT.target; attrs.rel = EXT.rel; return attrs; }
-  // Share, first in the group: the page's address as it stands, search, tab
-  // and dates included (they live in the query string). The button says
-  // what it does and does only that. Where the system has a share sheet
-  // (phones, Windows, macOS, ChromeOS) it is Share and opens it; elsewhere
-  // it is Copy and copies the address, then confirms as GitHub's copy
-  // buttons do: a check and a "Copied!" tooltip for two seconds, out of the
-  // flow, so nothing beside the button moves.
+  // Share where the system has a share sheet, Copy elsewhere; each does only that.
   var canShare = typeof navigator.share === "function";
   var shareName = canShare ? "Share" : "Copy";
   var shareBtn = el("button", {type:"button", id:"share", "aria-label": canShare ? "Share" : "Copy link", title: canShare ? "Share" : "Copy link"}), shareTimer;

@@ -92,7 +92,6 @@ svg{fill:currentColor}
 .tab[aria-pressed="true"]{border-bottom-color:var(--tab-active)}
 .tab[aria-pressed="true"] svg{color:var(--fg)}
 .profile-links a:hover,.theme:hover,.share:hover,.repo:hover{color:var(--fg)}
-/* A copied link confirms with the success colour, as GitHub's copy buttons. */
 .share--copied svg{color:var(--success-fg)}
 .entry.commits .repo:hover{color:inherit}
 .item:hover{color:var(--accent)}

@@ -112,8 +112,6 @@ check(doc.title === "NoneSilva's contributions" && /<title>NoneSilva&#39;s contr
       `tab title follows the account, in the page and in the HTML: ${doc.title}`);
 check(!/Guilherme/.test(byId.owner.textContent + doc.title), "no display name on the page");
 
-// Open Graph: the preview repeats the page's own title and description, and
-// its image is a file of the site, of the size the tags declare.
 const tag = prop => (html.match(new RegExp(`<meta (?:property|name)="${prop}" content="([^"]*)">`)) || [])[1];
 const description = (html.match(/<meta name="description" content="([^"]*)">/) || [])[1];
 check(tag("og:title") === "NoneSilva's contributions" && tag("og:title") === (html.match(/<title>([^<]*)<\/title>/) || [])[1],
@@ -124,12 +122,8 @@ const img = /^https:\/\/nonesilva\.github\.io\/(contributions\/og-image\.png)$/.
 const png = img && fs.existsSync(path.join(root, img[1])) ? fs.readFileSync(path.join(root, img[1])) : null;
 check(!!png && png.readUInt32BE(16) === +tag("og:image:width") && png.readUInt32BE(20) === +tag("og:image:height"),
       `og:image is an absolute URL to a file of the site, ${tag("og:image:width")}x${tag("og:image:height")} as declared`);
-// No og:url: it would send a shared link to the bare page, without its view.
 check(tag("og:url") === undefined, "no og:url");
 
-// No translation offer, on every page of the site: Chrome looks for the
-// google/notranslate meta among the head's children; translate="no" on
-// <html> is the standard for the other translators.
 for (const page of ["index.html", "404.html"]) {
   const src = fs.readFileSync(path.join(root, page), "utf8");
   const head = src.slice(src.indexOf("<head>"), src.indexOf("</head>"));
@@ -137,9 +131,6 @@ for (const page of ["index.html", "404.html"]) {
         `${page}: no translation offer (translate="no", google notranslate meta in the head)`);
 }
 
-// Share: the button sits between the profile links and the theme switch and
-// shares the address with its view: through the system's share sheet when
-// there is one, otherwise by copying it, confirmed for two seconds.
 async function shareChecks(){
   const flush = () => new Promise(r => setImmediate(r));
   const button = () => byId.links.children.find(n => n.attrs.id === "share");

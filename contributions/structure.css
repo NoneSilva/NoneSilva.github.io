@@ -59,11 +59,9 @@ ol{padding:0;list-style:none}
 .tab-text>span,.tab-text::after{grid-area:1/1}
 .tab-text::after{content:attr(data-text);font-weight:600;visibility:hidden}
 
-/* 4.2 Profile links, right end of the tab bar. The last one keeps the
-   group's own 16px after it, as every other item does. */
+/* 4.2 Profile links, right end of the tab bar. */
 .profile-links{margin-left:auto;display:flex;flex-wrap:wrap;gap:var(--space-4);align-self:center;padding-right:var(--space-4)}
 .profile-links a,.theme,.share{text-decoration:none;display:inline-flex;align-items:center;gap:var(--space-1);line-height:20px;padding:0;border:0;background:none;cursor:pointer}
-/* Share anchors its "Copied!" tooltip (4.7). */
 .share{position:relative}
 
 /* 4.3 Toolbar: title, search, date range. */
@@ -104,9 +102,7 @@ ol{padding:0;list-style:none}
 .signoff::before,.signoff::after{content:"";flex:1;border-top-width:1px;border-top-style:solid}
 .updated{font-variant-numeric:tabular-nums}
 
-/* 4.7 Tooltip, as Primer's: 12px text, 4px by 8px padding, 6px radius, 4px
-   below its anchor, centred, out of the flow; fades in over 0.1s unless the
-   reader asked for less motion. */
+/* 4.7 Tooltip, as Primer's. */
 .tooltip{position:absolute;top:calc(100% + var(--space-1));left:50%;transform:translateX(-50%);padding:var(--space-1) var(--space-2);border-radius:var(--radius);font-size:var(--text-small);line-height:20px;white-space:nowrap;pointer-events:none;z-index:1}
 @media (prefers-reduced-motion:no-preference){.tooltip{animation:tooltip-appear .1s ease-in}}
 @keyframes tooltip-appear{from{opacity:0}to{opacity:1}}
@@ -129,11 +125,8 @@ ol{padding:0;list-style:none}
      tight to label. The profile links weigh less: one row of their icons
      alone at the right, 8px apart as items of one group in Primer. Each
      icon sits at the right end of a 24px-wide, row-tall box, so the boxes
-     touch and a tap next to an icon lands on it. The whole nav sits 8px
-     inside the frame, as the tabs do on the desktop with their own padding:
-     the first tab's icon starts 8px in, the last column ends 8px in, and
-     the last profile icon keeps on its right the 8px its siblings keep
-     between them. Nothing touches the frame. */
+     touch and a tap next to an icon lands on it. The nav sits 8px inside
+     the frame, as the tabs' own padding does on the desktop. */
   .tabs{display:grid;grid-template-columns:minmax(0,1fr) max-content;grid-auto-rows:var(--control-h);align-items:center;gap:0;padding-inline:var(--space-2)}
   .tabs-list{display:contents}
   .tab{height:var(--control-h);padding-inline:0;gap:var(--space-1)}
